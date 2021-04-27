@@ -2,3 +2,4 @@
 .python-version
 database
 mlb.db
+__pycache__
