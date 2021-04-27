@@ -1,4 +1,5 @@
 from .filtered_query import FilteredQuery
+from pathlib import Path
 import os
 
 
@@ -7,7 +8,7 @@ class DeleteQuery(FilteredQuery):
         super().__init__()
 
     def from_(self, table_name):
-        self._main_table = f'{self.database_path}/{table_name}{self.file_extension}'
+        self._main_table = f'{Path(self._database_path)/table_name}{self._file_extension}'
         return self
 
     def run(self):
@@ -16,9 +17,9 @@ class DeleteQuery(FilteredQuery):
             entries = (dict(zip(column_headers, entry)) for entry in map(self.strip_and_split, table))
             non_deleted_entries = [entry.values() for entry in entries if not self._filter(entry)]
         with open(self._main_table, 'w') as table:
-            table.write(f"{','.join(column_headers)}\n"
-                        f"{os.linesep.join(','.join(entry) for entry in non_deleted_entries)}\n")
+            table.write(f"{self._sep.join(column_headers)}{self._linesep}"
+                        f"{os.linesep.join(self._sep.join(entry) for entry in non_deleted_entries)}{self._linesep}")
 
-    @staticmethod
-    def strip_and_split(line):
-        return line.strip().split(',')
+    @classmethod
+    def strip_and_split(cls, line):
+        return line.strip().split(cls._sep)
