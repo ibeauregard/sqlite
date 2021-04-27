@@ -1,5 +1,6 @@
 .idea
 .python-version
 database
+db_backup
 mlb.db
 __pycache__
