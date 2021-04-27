@@ -8,6 +8,6 @@ class FilteredQuery(AbstractQuery):
         super().__init__()
         self._filter = lambda entry: True
 
-    def where(self, column_name, condition):
-        self._filter = lambda entry: condition(entry[column_name])
+    def where(self, column, condition):
+        self._filter = lambda entry: condition(entry[column])
         return self

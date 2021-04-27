@@ -10,13 +10,13 @@ def converted(value):
             pass
 
 
-def typesafe(comparison):
-    def typesafe_comparison(value):
+def typesafe(func):
+    def typesafe_func(*args, **kwargs):
         try:
-            return comparison(value)
+            return func(*args, **kwargs)
         except TypeError:
             return False
-    return typesafe_comparison
+    return typesafe_func
 
 
 if __name__ == '__main__':
@@ -24,4 +24,8 @@ if __name__ == '__main__':
     comparator = operator.lt
     table = 'Players'
     column = 'weight'
-    DeleteQuery().from_(table).where(column, typesafe(lambda value: comparator(converted(value), input_value))).run()
+
+    @typesafe
+    def condition(value):
+        return comparator(converted(value), input_value)
+    DeleteQuery().from_(table).where(column, condition).run()
