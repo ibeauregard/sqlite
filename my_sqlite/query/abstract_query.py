@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from config.config import Config
 import os
 
@@ -11,6 +12,14 @@ class AbstractQuery(ABC):
 
     def __init__(self):
         self._main_table = None
+
+    @property
+    def main_table(self):
+        return self._main_table
+
+    @main_table.setter
+    def main_table(self, table):
+        self._main_table = f'{Path(self._database_path) / table}{self._file_extension}'
 
     @abstractmethod
     def run(self):
