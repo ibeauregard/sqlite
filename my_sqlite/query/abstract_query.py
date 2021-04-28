@@ -7,7 +7,7 @@ import os
 class AbstractQuery(ABC):
     _database_path = Config.database_path
     _file_extension = Config.table_filename_extension
-    _sep = Config.separator
+    _sep = Config.column_separator
     _linesep = os.linesep
 
     def __init__(self):
