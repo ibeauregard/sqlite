@@ -12,14 +12,16 @@ class AbstractQuery(ABC):
 
     def __init__(self):
         self._main_table = None
+        self._main_table_path = None
 
     @property
     def main_table(self):
-        return self._main_table
+        return self._main_table_path
 
     @main_table.setter
     def main_table(self, table):
-        self._main_table = f'{Path(self._database_path) / table}{self._file_extension}'
+        self._main_table = table
+        self._main_table_path = f'{Path(self._database_path) / table}{self._file_extension}'
 
     @abstractmethod
     def run(self):
