@@ -1,7 +1,7 @@
-from .filtered_query import FilteredQuery
+from .abstract import AbstractQuery
 
 
-class SelectQuery(FilteredQuery):
+class Insert(AbstractQuery):
     def __init__(self):
         super().__init__()
 
