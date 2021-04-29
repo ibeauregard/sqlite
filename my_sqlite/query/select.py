@@ -1,26 +1,55 @@
+from collections import namedtuple
 from .abstract import AbstractQuery
 from ..errors import NoSuchColumnError, AmbiguousColumnNameError, check_existence
-from itertools import product
+from itertools import product, chain
+from functools import wraps
+
+
+def update_maps(method):
+    @wraps(method)
+    def wrapper(query, table_name, *args, **kwargs):
+        return_value = method(query, table_name, *args, **kwargs)
+        with open(query.path_from_table_name(table_name)) as table:
+            headers = query._strip_and_split(next(table))
+        query.table_map[table_name] = max(query.table_map.values(), default=-1) + 1
+        query.header_maps.append({header: i for i, header in enumerate(headers)})
+        return return_value
+    return wrapper
 
 
 class Select(AbstractQuery):
     def __init__(self, result_columns):
         super().__init__()
-        self._result_columns = result_columns
+        self.table_map = {}
+        self.header_maps = []
         self._right_table = None
         self._right_table_path = None
-        self._input_join_keys = None
+        self._join_keys = None
+        self._filter = lambda entry: True
+
+
+        self._result_columns = result_columns
         self._order_key = None
         self._order_ascending = None
         self._limit = None
 
+    @update_maps
     def from_(self, table):
         self.table = table
         return self
 
-    def join(self, right_table, *join_keys):
+    @update_maps
+    def join(self, right_table):
         self.right_table = right_table
-        self._input_join_keys = join_keys
+        return self
+
+    def on(self, *join_keys):
+        self._join_keys = KeyMatcher(self).match(*join_keys)
+        return self
+
+    def where(self, column, condition):
+        key = KeyMatcher(self).match(column)[0]
+        self._filter = lambda entry: condition(entry[key.table][key.column])
         return self
 
     def order_by(self, key, ascending=True):
@@ -46,58 +75,41 @@ class Select(AbstractQuery):
         with open(self.table) as left_table, open(self.right_table) as right_table:
             left_headers, left_entries = self._parse_table(left_table)
             right_headers, right_entries = self._parse_table(right_table)
-            cross_join = ({self._table: left_entry, self._right_table: right_entry}
-                          for left_entry, right_entry in product(left_entries, right_entries))
-            left_key, right_key = JoinKeyMatcher(self, left_headers, right_headers).run()
-            2+2
-            joined_table = (entry for entry in cross_join
-                            if entry[left_key.table][left_key.column] == entry[right_key.table][right_key.column])
+            filtered_join = (entry for entry in product(left_entries, right_entries)
+                             if entry[self._join_keys[0].table][self._join_keys[0].column]
+                             == entry[self._join_keys[1].table][self._join_keys[1].column]
+                             and self._filter(entry))
+        return (list(chain(*entry)) for entry in filtered_join)
 
 
-class JoinKeyMatcher:
-    def __init__(self, query, left_headers, right_headers):
+class KeyMatcher:
+    def __init__(self, query):
         self.query: Select = query
-        self.left_headers = left_headers
-        self.right_headers = right_headers
 
-    def run(self):
-        left_key = self._match(self.query._input_join_keys[0])
-        right_key = self._match(self.query._input_join_keys[1])
-        return left_key, right_key
+    def match(self, *keys):
+        return tuple(self._match(key) for key in keys)
 
     def _match(self, key):
         key_parts = key.split('.', maxsplit=1)
         if len(key_parts) == 1:
             return self._match_one_part(key)
         else:  # len == 2
-            return Key(*key_parts)
+            return self._match_two_parts(key_parts)
 
     def _match_one_part(self, key):
-        if key in self.left_headers and key in self.right_headers:
+        matches = tuple((i, headers[key]) for i, headers in enumerate(self.query.header_maps) if key in headers)
+        if len(matches) > 1:
             raise AmbiguousColumnNameError(key)
-        if key not in self.left_headers and key not in self.right_headers:
+        if not matches:
             raise NoSuchColumnError(key)
-        table = self.query._table if key in self.left_headers else self.query.right_table
-        return Key(table=table, column=key)
+        return Key(*matches[0])
+
+    def _match_two_parts(self, parts):
+        try:
+            table_index = self.query.table_map[parts[0]]
+            return Key(table_index, self.query.header_maps[table_index][parts[1]])
+        except KeyError:
+            raise NoSuchColumnError('.'.join(parts))
 
 
-class Key:
-    def __init__(self, table=None, column=None):
-        self._table = table
-        self._column = column
-
-    @property
-    def table(self):
-        return self._table
-
-    @table.setter
-    def table(self, table):
-        self._table = table
-
-    @property
-    def column(self):
-        return self._column
-
-    @column.setter
-    def column(self, column):
-        self._column = column
+Key = namedtuple('Key', ['table', 'column'])

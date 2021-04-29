@@ -91,31 +91,35 @@ if __name__ == '__main__':
     print('\nSelectQuery')
 
     @error_handling
-    def select(columns, table, join_args):
-        Select(columns)\
+    def select(columns, table, right_table, join_keys, where_args=None):
+        select = Select(columns)\
             .from_(table)\
-            .join(*join_args)\
-            .run()
+            .join(right_table)\
+            .on(*join_keys)
+        if where_args is not None:
+            select = select.where(*where_args)
+        result = select.run()
+        print(*('|'.join(entry) for entry in result), sep='\n')
     select(('nameFirst', 'nameLast', 'yearId', 'HR'),
          'Roger',
-          ('Batting', 'Players.playerID', 'Batting.playerID'))
+          'Batting', ('Players.playerID', 'Batting.playerID'))
 
     select(('nameFirst', 'nameLast', 'yearId', 'HR'),
          'Players',
-          ('Roger', 'Players.Players.playerID', 'Batting.playerID'))
+          'Roger', ('Players.Players.playerID', 'Batting.playerID'))
 
     select(('nameFirst', 'nameLast', 'yearId', 'HR'),
          'Players',
-          ('Batting', 'Players.playerID', 'Batting.Batting.playerID'))
+          'Batting', ('Players.playerID', 'Batting.Batting.playerID'))
 
     select(('nameFirst', 'nameLast', 'yearId', 'HR'),
          'Players',
-          ('Batting', 'Batting.playerID', 'Players.playerID'))
+          'Batting', ('Batting.playerID', 'Players.playerID'), ('yearID', typesafe(lambda value: converted(value) == 2015)))
 
     select(('nameFirst', 'nameLast', 'yearId', 'HR'),
          'Players',
-          ('Batting', 'playerID', 'playerID'))
+          'Batting', ('playerID', 'playerID'))
 
     select(('nameFirst', 'nameLast', 'yearId', 'HR'),
            'Players',
-           ('Batting', 'roger', 'playerID'))
+           'Batting', ('roger', 'playerID'))
