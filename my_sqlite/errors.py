@@ -1,4 +1,4 @@
-from functools import wraps
+import functools
 from abc import ABC, abstractmethod
 
 
@@ -31,7 +31,7 @@ class AmbiguousColumnNameError(ColumnError, Exception):
 
 
 def check_existence(setter):
-    @wraps(setter)
+    @functools.wraps(setter)
     def wrapper(query, table, *args, **kwargs):
         if not query.path_from_table_name(table).is_file():
             raise NoSuchTableError(table)
@@ -40,7 +40,7 @@ def check_existence(setter):
 
 
 def translate_key_error(func):
-    @wraps(func)
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
             func(*args, **kwargs)

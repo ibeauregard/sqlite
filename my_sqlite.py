@@ -1,9 +1,10 @@
-from my_sqlite.query.delete import Delete
-from my_sqlite.query.update import Update
-from my_sqlite.query.select import Select
-from my_sqlite.errors import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError
-from functools import wraps
+import functools
 import operator
+
+from my_sqlite.errors import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError
+from my_sqlite.query.delete import Delete
+from my_sqlite.query.select import Select
+from my_sqlite.query.update import Update
 
 
 def converted(value):
@@ -15,7 +16,7 @@ def converted(value):
 
 
 def typesafe(func):
-    @wraps(func)
+    @functools.wraps(func)
     def typesafe_func(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -25,7 +26,7 @@ def typesafe(func):
 
 
 def error_handling(test):
-    @wraps(test)
+    @functools.wraps(test)
     def test_with_error_handling(*args, **kwargs):
         try:
             test(*args, **kwargs)
@@ -91,35 +92,39 @@ if __name__ == '__main__':
     print('\nSelectQuery')
 
     @error_handling
-    def select(columns, table, right_table, join_keys, where_args=None):
-        select = Select(columns)\
+    def select(table, right_table, join_keys, where_args=None, select_args=None, orderby_args=None, limit=None):
+        query = Select()\
             .from_(table)\
             .join(right_table)\
             .on(*join_keys)
         if where_args is not None:
-            select = select.where(*where_args)
-        result = select.run()
+            query = query.where(*where_args)
+        if select_args is not None:
+            query = query.select(*select_args)
+        if orderby_args is not None:
+            query = query.order_by(orderby_args[0], ascending=orderby_args[1])
+        if limit is not None:
+            query = query.limit(limit)
+        result = query.run()
         print(*('|'.join(entry) for entry in result), sep='\n')
-    select(('nameFirst', 'nameLast', 'yearId', 'HR'),
-         'Roger',
+    select('Roger',
           'Batting', ('Players.playerID', 'Batting.playerID'))
 
-    select(('nameFirst', 'nameLast', 'yearId', 'HR'),
-         'Players',
+    select('Players',
           'Roger', ('Players.Players.playerID', 'Batting.playerID'))
 
-    select(('nameFirst', 'nameLast', 'yearId', 'HR'),
-         'Players',
+    select('Players',
           'Batting', ('Players.playerID', 'Batting.Batting.playerID'))
 
-    select(('nameFirst', 'nameLast', 'yearId', 'HR'),
-         'Players',
-          'Batting', ('Batting.playerID', 'Players.playerID'), ('yearID', typesafe(lambda value: converted(value) == 2015)))
+    select('Players',
+          'Batting', ('Batting.playerID', 'Players.playerID'),
+           ('Batting.yearID', typesafe(lambda value: converted(value) == 2015)),
+           ('nameFirst', 'nameLast', 'yearID', 'R', 'H', 'HR', 'RBI'),
+           ('HR', False),
+           10)
 
-    select(('nameFirst', 'nameLast', 'yearId', 'HR'),
-         'Players',
+    select('Players',
           'Batting', ('playerID', 'playerID'))
 
-    select(('nameFirst', 'nameLast', 'yearId', 'HR'),
-           'Players',
+    select('Players',
            'Batting', ('roger', 'playerID'))

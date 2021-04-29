@@ -5,7 +5,7 @@ from ..errors import translate_key_error
 class Delete(AbstractQuery):
     def __init__(self):
         super().__init__()
-        self._filter = lambda entry: True
+        self._filter = lambda entry, header_map: True
 
     def from_(self, table):
         self.table = table

@@ -7,7 +7,7 @@ class Update(AbstractQuery):
         super().__init__()
         self.table = table
         self._update_dict = None
-        self._filter = lambda entry: True
+        self._filter = lambda entry, header_map: True
 
     def set(self, update_dict):
         self._update_dict = update_dict

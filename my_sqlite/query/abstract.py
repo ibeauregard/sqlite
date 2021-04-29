@@ -31,8 +31,8 @@ class AbstractQuery(ABC):
 
     @classmethod
     def _parse_table(cls, table):
-        header_map = {header: i for i, header in enumerate(cls._strip_and_split(next(table)))}
-        entries = map(cls._strip_and_split, table)
+        header_map = {header: i for i, header in enumerate(cls.strip_and_split(next(table)))}
+        entries = map(cls.strip_and_split, table)
         return header_map, entries
 
     @classmethod
@@ -41,7 +41,7 @@ class AbstractQuery(ABC):
                f"{os.linesep.join(cls._sep.join(entry) for entry in entries)}{cls._linesep}"
 
     @classmethod
-    def _strip_and_split(cls, line):
+    def strip_and_split(cls, line):
         return line.strip().split(cls._sep)
 
     @classmethod

@@ -1,16 +1,18 @@
-from collections import namedtuple
+import collections
+import functools
+import heapq
+import itertools
+
 from .abstract import AbstractQuery
 from ..errors import NoSuchColumnError, AmbiguousColumnNameError, check_existence
-from itertools import product, chain
-from functools import wraps
 
 
 def update_maps(method):
-    @wraps(method)
+    @functools.wraps(method)
     def wrapper(query, table_name, *args, **kwargs):
         return_value = method(query, table_name, *args, **kwargs)
         with open(query.path_from_table_name(table_name)) as table:
-            headers = query._strip_and_split(next(table))
+            headers = query.strip_and_split(next(table))
         query.table_map[table_name] = max(query.table_map.values(), default=-1) + 1
         query.header_maps.append({header: i for i, header in enumerate(headers)})
         return return_value
@@ -18,19 +20,18 @@ def update_maps(method):
 
 
 class Select(AbstractQuery):
-    def __init__(self, result_columns):
+    def __init__(self):
         super().__init__()
+        self._key_matcher = KeyMatcher(self)
         self.table_map = {}
         self.header_maps = []
         self._right_table = None
         self._right_table_path = None
-        self._join_keys = None
-        self._filter = lambda entry: True
-
-
-        self._result_columns = result_columns
+        self._on_filter = lambda entry: True
+        self._where_filter = lambda entry: True
+        self._select_keys = None
         self._order_key = None
-        self._order_ascending = None
+        self._order_ascending = True
         self._limit = None
 
     @update_maps
@@ -44,21 +45,26 @@ class Select(AbstractQuery):
         return self
 
     def on(self, *join_keys):
-        self._join_keys = KeyMatcher(self).match(*join_keys)
+        key1, key2 = self._key_matcher.match(*join_keys)
+        self._on_filter = lambda entry: entry[key1.table][key1.column] == entry[key2.table][key2.column]
         return self
 
     def where(self, column, condition):
-        key = KeyMatcher(self).match(column)[0]
-        self._filter = lambda entry: condition(entry[key.table][key.column])
+        key = self._key_matcher.match(column)[0]
+        self._where_filter = lambda entry: condition(entry[key.table][key.column])
         return self
 
-    def order_by(self, key, ascending=True):
-        self._order_key = key
+    def select(self, *columns):
+        self._select_keys = self._key_matcher.match(*columns)
+        return self
+
+    def order_by(self, key, *, ascending=True):
+        self._order_key = self._key_matcher.match(key)[0]
         self._order_ascending = ascending
         return self
 
     def limit(self, limit):
-        self._limit = limit
+        self._limit = limit if limit >= 0 else None
         return self
 
     @property
@@ -71,15 +77,27 @@ class Select(AbstractQuery):
         self._right_table = table
         self._right_table_path = str(self.path_from_table_name(table))
 
+    # TODO: handle single table queries
     def run(self):
         with open(self.table) as left_table, open(self.right_table) as right_table:
             left_headers, left_entries = self._parse_table(left_table)
             right_headers, right_entries = self._parse_table(right_table)
-            filtered_join = (entry for entry in product(left_entries, right_entries)
-                             if entry[self._join_keys[0].table][self._join_keys[0].column]
-                             == entry[self._join_keys[1].table][self._join_keys[1].column]
-                             and self._filter(entry))
-        return (list(chain(*entry)) for entry in filtered_join)
+            filtered_join = (entry for entry in itertools.product(left_entries, right_entries)
+                             if self._on_filter(entry) and self._where_filter(entry))
+        return ((entry[table][column] for table, column in self._select_keys) if self._select_keys
+                else itertools.chain(*entry)
+                for entry in self.order_and_limit()(filtered_join))
+
+    def order_and_limit(self):
+        if self._order_key is not None:
+            def key(entry): return entry[self._order_key.table][self._order_key.column]
+            if self._limit:
+                return lambda entries: \
+                    (heapq.nsmallest if self._order_ascending else heapq.nlargest)(self._limit, entries, key=key)
+            else:
+                return lambda entries: sorted(entries, key=key, reverse=not self._order_ascending)
+        else:
+            return lambda entries: itertools.islice(entries, self._limit)
 
 
 class KeyMatcher:
@@ -107,9 +125,9 @@ class KeyMatcher:
     def _match_two_parts(self, parts):
         try:
             table_index = self.query.table_map[parts[0]]
-            return Key(table_index, self.query.header_maps[table_index][parts[1]])
+            return Key(table=table_index, column=self.query.header_maps[table_index][parts[1]])
         except KeyError:
             raise NoSuchColumnError('.'.join(parts))
 
 
-Key = namedtuple('Key', ['table', 'column'])
+Key = collections.namedtuple('Key', ['table', 'column'])
