@@ -22,13 +22,13 @@ def update_maps(method):
 class Select(AbstractQuery):
     def __init__(self):
         super().__init__()
-        self._key_matcher = KeyMatcher(self)
+        self._key_mapper = KeyMapper(self)
         self.table_map = {}
         self.header_maps = []
         self._right_table = None
         self._right_table_path = None
-        self._on_filter = lambda entry: True
-        self._where_filter = lambda entry: True
+        self._on_filter = lambda row: True
+        self._where_filter = lambda row: True
         self._select_keys = None
         self._order_key = None
         self._order_ascending = True
@@ -45,21 +45,21 @@ class Select(AbstractQuery):
         return self
 
     def on(self, *join_keys):
-        key1, key2 = self._key_matcher.match(*join_keys)
-        self._on_filter = lambda entry: entry[key1.table][key1.column] == entry[key2.table][key2.column]
+        key1, key2 = self._key_mapper.map(*join_keys)
+        self._on_filter = lambda row: row[key1.table][key1.column] == row[key2.table][key2.column]
         return self
 
     def where(self, column, condition):
-        [key] = self._key_matcher.match(column)
-        self._where_filter = lambda entry: condition(entry[key.table][key.column])
+        [key] = self._key_mapper.map(column)
+        self._where_filter = lambda row: condition(row[key.table][key.column])
         return self
 
     def select(self, *columns):
-        self._select_keys = self._key_matcher.match(*columns)
+        self._select_keys = self._key_mapper.map(*columns)
         return self
 
     def order_by(self, key, *, ascending=True):
-        [self._order_key] = self._key_matcher.match(key)
+        [self._order_key] = self._key_mapper.map(key)
         self._order_ascending = ascending
         return self
 
@@ -80,41 +80,41 @@ class Select(AbstractQuery):
     # TODO: handle single table queries
     def run(self):
         with open(self.table) as left_table, open(self.right_table) as right_table:
-            left_headers, left_entries = self._parse_table(left_table)
-            right_headers, right_entries = self._parse_table(right_table)
-            filtered_join = (entry for entry in itertools.product(left_entries, right_entries)
-                             if self._on_filter(entry) and self._where_filter(entry))
-        return ((entry[table][column] for table, column in self._select_keys) if self._select_keys
-                else itertools.chain(*entry)
-                for entry in self._order_and_limit()(filtered_join))
+            _, left_rows = self._parse_table(left_table)
+            _, right_rows = self._parse_table(right_table)
+            filtered_join = (row for row in itertools.product(left_rows, right_rows)
+                             if self._on_filter(row) and self._where_filter(row))
+        return ((row[table][column] for table, column in self._select_keys) if self._select_keys
+                else itertools.chain(*row)
+                for row in self._order_and_limit()(filtered_join))
 
     def _order_and_limit(self):
         if self._order_key is not None:
-            def key(entry): return entry[self._order_key.table][self._order_key.column]
+            def key(row): return row[self._order_key.table][self._order_key.column]
             if self._limit:
-                return lambda entries: \
-                    (heapq.nsmallest if self._order_ascending else heapq.nlargest)(self._limit, entries, key=key)
+                return lambda rows: \
+                    (heapq.nsmallest if self._order_ascending else heapq.nlargest)(self._limit, rows, key=key)
             else:
-                return lambda entries: sorted(entries, key=key, reverse=not self._order_ascending)
+                return lambda rows: sorted(rows, key=key, reverse=not self._order_ascending)
         else:
-            return lambda entries: itertools.islice(entries, self._limit)
+            return lambda rows: itertools.islice(rows, self._limit)
 
 
-class KeyMatcher:
+class KeyMapper:
     def __init__(self, query):
         self.query: Select = query
 
-    def match(self, *keys):
-        return tuple(self._match(key) for key in keys)
+    def map(self, *keys):
+        return tuple(self._map(key) for key in keys)
 
-    def _match(self, key):
+    def _map(self, key):
         key_parts = key.split('.', maxsplit=1)
         if len(key_parts) == 1:
-            return self._match_one_part(key)
+            return self._map_one_part(key)
         else:  # len == 2
-            return self._match_two_parts(key_parts)
+            return self._map_two_parts(key_parts)
 
-    def _match_one_part(self, key):
+    def _map_one_part(self, key):
         matches = tuple((i, headers[key]) for i, headers in enumerate(self.query.header_maps) if key in headers)
         if len(matches) > 1:
             raise AmbiguousColumnNameError(key)
@@ -122,7 +122,7 @@ class KeyMatcher:
             raise NoSuchColumnError(key)
         return Key(*matches[0])
 
-    def _match_two_parts(self, parts):
+    def _map_two_parts(self, parts):
         try:
             table_index = self.query.table_map[parts[0]]
             return Key(table=table_index, column=self.query.header_maps[table_index][parts[1]])
