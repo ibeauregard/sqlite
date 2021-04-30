@@ -77,20 +77,28 @@ class Select(AbstractQuery):
         self._right_table = table
         self._right_table_path = str(self.path_from_table_name(table))
 
-    # TODO: handle single table queries
     def run(self):
+        filtered_rows = self._get_rows_with_join() if self.right_table else self._get_rows_no_join()
+        return ((row[table][column] for table, column in self._select_keys) if self._select_keys
+                else itertools.chain(*row)
+                for row in self._order_and_limit()(filtered_rows))
+
+    def _get_rows_with_join(self):
         with open(self.table) as left_table, open(self.right_table) as right_table:
             _, left_rows = self._parse_table(left_table)
             _, right_rows = self._parse_table(right_table)
-            filtered_join = (row for row in itertools.product(left_rows, right_rows)
-                             if self._on_filter(row) and self._where_filter(row))
-        return ((row[table][column] for table, column in self._select_keys) if self._select_keys
-                else itertools.chain(*row)
-                for row in self._order_and_limit()(filtered_join))
+            return (row for row in itertools.product(left_rows, right_rows)
+                    if self._on_filter(row) and self._where_filter(row))
+
+    def _get_rows_no_join(self):
+        with open(self.table) as table:
+            _, rows = self._parse_table(table)
+            return [(row,) for row in rows if self._where_filter(row)]
 
     def _order_and_limit(self):
         if self._order_key is not None:
-            def key(row): return row[self._order_key.table][self._order_key.column]
+            def key(row):
+                return row[self._order_key.table][self._order_key.column]
             if self._limit:
                 return lambda rows: \
                     (heapq.nsmallest if self._order_ascending else heapq.nlargest)(self._limit, rows, key=key)

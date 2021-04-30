@@ -30,11 +30,7 @@ def error_handling(test):
     def test_with_error_handling(*args, **kwargs):
         try:
             test(*args, **kwargs)
-        except NoSuchTableError as e:
-            print(e)
-        except NoSuchColumnError as e:
-            print(e)
-        except AmbiguousColumnNameError as e:
+        except (NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError) as e:
             print(e)
     return test_with_error_handling
 
@@ -92,11 +88,11 @@ if __name__ == '__main__':
     print('\nSelectQuery')
 
     @error_handling
-    def select(table, right_table, join_keys, where_args=None, select_args=None, orderby_args=None, limit=None):
+    def select(table, right_table=None, join_keys=None, where_args=None, select_args=None, orderby_args=None, limit=None):
         query = Select()\
-            .from_(table)\
-            .join(right_table)\
-            .on(*join_keys)
+            .from_(table)
+        if right_table:
+            query = query.join(right_table).on(*join_keys)
         if where_args is not None:
             query = query.where(*where_args)
         if select_args is not None:
@@ -121,6 +117,11 @@ if __name__ == '__main__':
            ('Batting.yearID', typesafe(lambda value: converted(value) == 2015)),
            ('nameFirst', 'nameLast', 'yearID', 'R', 'H', 'HR', 'RBI'),
            {'key': 'HR', 'ascending': False},
+           10)
+
+    select('Players',
+           None, None, None, ('nameFirst', 'nameLast'),
+           {'key': 'nameLast', 'ascending': False},
            10)
 
     select('Players',
