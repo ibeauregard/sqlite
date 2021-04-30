@@ -13,7 +13,7 @@ class Update(AbstractQuery):
         self._update_dict = update_dict
         return self
 
-    def where(self, column, condition):
+    def where(self, column, *, condition):
         self._filter = lambda entry, header_map: condition(entry[header_map[column]])
         return self
 

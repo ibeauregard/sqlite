@@ -4,6 +4,7 @@ import heapq
 import itertools
 
 from .abstract import AbstractQuery
+from ..conversion import converted
 from ..errors import NoSuchColumnError, AmbiguousColumnNameError, check_existence
 
 
@@ -39,27 +40,35 @@ class Select(AbstractQuery):
         self.table = table
         return self
 
-    @update_maps
-    def join(self, right_table):
-        self.right_table = right_table
+    def join(self, right_table, *, on):
+        self._join(right_table)
+        self._on(on)
         return self
 
-    def on(self, *join_keys):
+    @update_maps
+    def _join(self, right_table):
+        self.right_table = right_table
+
+    def _on(self, join_keys):
         key1, key2 = self._key_mapper.map(*join_keys)
         self._on_filter = lambda row: row[key1.table][key1.column] == row[key2.table][key2.column]
-        return self
 
-    def where(self, column, condition):
+    def where(self, column, *, condition):
         [key] = self._key_mapper.map(column)
-        self._where_filter = lambda row: condition(row[key.table][key.column])
+        self._where_filter = lambda row: condition(converted(row[key.table][key.column]))
         return self
 
-    def select(self, *columns):
+    def select(self, columns):
         self._select_keys = self._key_mapper.map(*columns)
         return self
 
-    def order_by(self, key, *, ascending=True):
-        [self._order_key] = self._key_mapper.map(key)
+    def order_by(self, column, *, ascending=True):
+        [key] = self._key_mapper.map(column)
+
+        def order_key(row):
+            value = converted(row[key.table][key.column])
+            return (value == '' if ascending else value != ''), value
+        self._order_key = order_key
         self._order_ascending = ascending
         return self
 
@@ -78,7 +87,8 @@ class Select(AbstractQuery):
         self._right_table_path = str(self.path_from_table_name(table))
 
     def run(self):
-        filtered_rows = self._get_rows_with_join() if self.right_table else self._get_rows_no_join()
+        rows = self._get_rows_with_join() if self.right_table else self._get_rows_no_join()
+        filtered_rows = (row for row in rows if self._on_filter(row) and self._where_filter(row))
         return ((row[table][column] for table, column in self._select_keys) if self._select_keys
                 else itertools.chain(*row)
                 for row in self._order_and_limit()(filtered_rows))
@@ -87,23 +97,22 @@ class Select(AbstractQuery):
         with open(self.table) as left_table, open(self.right_table) as right_table:
             _, left_rows = self._parse_table(left_table)
             _, right_rows = self._parse_table(right_table)
-            return (row for row in itertools.product(left_rows, right_rows)
-                    if self._on_filter(row) and self._where_filter(row))
+            return itertools.product(left_rows, right_rows)
 
     def _get_rows_no_join(self):
         with open(self.table) as table:
             _, rows = self._parse_table(table)
-            return [(row,) for row in rows if self._where_filter(row)]
+            return itertools.product(rows)
 
     def _order_and_limit(self):
         if self._order_key is not None:
-            def key(row):
-                return row[self._order_key.table][self._order_key.column]
             if self._limit:
                 return lambda rows: \
-                    (heapq.nsmallest if self._order_ascending else heapq.nlargest)(self._limit, rows, key=key)
+                    (heapq.nsmallest if self._order_ascending else heapq.nlargest)(self._limit,
+                                                                                   rows,
+                                                                                   key=self._order_key)
             else:
-                return lambda rows: sorted(rows, key=key, reverse=not self._order_ascending)
+                return lambda rows: sorted(rows, key=self._order_key, reverse=not self._order_ascending)
         else:
             return lambda rows: itertools.islice(rows, self._limit)
 

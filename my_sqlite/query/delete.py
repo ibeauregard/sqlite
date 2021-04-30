@@ -12,7 +12,7 @@ class Delete(AbstractQuery):
         return self
 
     # TODO: remove code duplication with update
-    def where(self, column, condition):
+    def where(self, column, *, condition):
         self._filter = lambda entry, header_map: condition(entry[header_map[column]])
         return self
 
