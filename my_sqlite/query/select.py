@@ -50,7 +50,7 @@ class Select(AbstractQuery):
         return self
 
     def where(self, column, condition):
-        key = self._key_matcher.match(column)[0]
+        [key] = self._key_matcher.match(column)
         self._where_filter = lambda entry: condition(entry[key.table][key.column])
         return self
 
@@ -59,7 +59,7 @@ class Select(AbstractQuery):
         return self
 
     def order_by(self, key, *, ascending=True):
-        self._order_key = self._key_matcher.match(key)[0]
+        [self._order_key] = self._key_matcher.match(key)
         self._order_ascending = ascending
         return self
 
@@ -86,9 +86,9 @@ class Select(AbstractQuery):
                              if self._on_filter(entry) and self._where_filter(entry))
         return ((entry[table][column] for table, column in self._select_keys) if self._select_keys
                 else itertools.chain(*entry)
-                for entry in self.order_and_limit()(filtered_join))
+                for entry in self._order_and_limit()(filtered_join))
 
-    def order_and_limit(self):
+    def _order_and_limit(self):
         if self._order_key is not None:
             def key(entry): return entry[self._order_key.table][self._order_key.column]
             if self._limit:

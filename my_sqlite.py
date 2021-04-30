@@ -102,7 +102,7 @@ if __name__ == '__main__':
         if select_args is not None:
             query = query.select(*select_args)
         if orderby_args is not None:
-            query = query.order_by(orderby_args[0], ascending=orderby_args[1])
+            query = query.order_by(**orderby_args)
         if limit is not None:
             query = query.limit(limit)
         result = query.run()
@@ -120,7 +120,7 @@ if __name__ == '__main__':
           'Batting', ('Batting.playerID', 'Players.playerID'),
            ('Batting.yearID', typesafe(lambda value: converted(value) == 2015)),
            ('nameFirst', 'nameLast', 'yearID', 'R', 'H', 'HR', 'RBI'),
-           ('HR', False),
+           {'key': 'HR', 'ascending': False},
            10)
 
     select('Players',
