@@ -1,3 +1,4 @@
+import collections
 from abc import ABC, abstractmethod
 from pathlib import Path
 from config.config import Config
@@ -12,27 +13,20 @@ class AbstractQuery(ABC):
     _linesep = os.linesep
 
     def __init__(self):
-        self._table = None
-        self._table_path = None
+        self._tables = []
 
     @abstractmethod
     def run(self):
         pass
 
-    @property
-    def table(self):
-        return self._table_path
-
-    @table.setter
     @check_existence
-    def table(self, table):
-        self._table = table
-        self._table_path = str(self.path_from_table_name(table))
+    def append_table(self, table):
+        self._tables.append(Table(table, path=self.path_from_table_name(table)))
 
     @classmethod
     def _parse_table(cls, table):
         header_map = {header: i for i, header in enumerate(cls.strip_and_split(next(table)))}
-        entries = map(cls.strip_and_split, table)
+        entries = list(map(cls.strip_and_split, table))
         return header_map, entries
 
     @classmethod
@@ -47,3 +41,6 @@ class AbstractQuery(ABC):
     @classmethod
     def path_from_table_name(cls, table):
         return Path(cls._database_path) / f'{table}{cls._file_extension}'
+
+
+Table = collections.namedtuple('Table', ['name', 'path'])

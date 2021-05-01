@@ -26,8 +26,6 @@ class Select(AbstractQuery):
         self._key_mapper = KeyMapper(self)
         self.table_map = {}
         self.header_maps = []
-        self._right_table = None
-        self._right_table_path = None
         self._on_filter = lambda row: True
         self._where_filter = lambda row: True
         self._select_keys = None
@@ -37,17 +35,17 @@ class Select(AbstractQuery):
 
     @update_maps
     def from_(self, table):
-        self.table = table
+        self.append_table(table)
         return self
 
-    def join(self, right_table, *, on):
-        self._join(right_table)
+    def join(self, table, *, on):
+        self._join(table)
         self._on(on)
         return self
 
     @update_maps
-    def _join(self, right_table):
-        self.right_table = right_table
+    def _join(self, table):
+        self.append_table(table)
 
     def _on(self, join_keys):
         key1, key2 = self._key_mapper.map(*join_keys)
@@ -76,33 +74,19 @@ class Select(AbstractQuery):
         self._limit = limit if limit >= 0 else None
         return self
 
-    @property
-    def right_table(self):
-        return self._right_table_path
-
-    @right_table.setter
-    @check_existence
-    def right_table(self, table):
-        self._right_table = table
-        self._right_table_path = str(self.path_from_table_name(table))
-
     def run(self):
-        rows = self._get_rows_with_join() if self.right_table else self._get_rows_no_join()
-        filtered_rows = (row for row in rows if self._on_filter(row) and self._where_filter(row))
+        filtered_rows = (row for row in self._get_rows() if self._on_filter(row) and self._where_filter(row))
         return ((row[table][column] for table, column in self._select_keys) if self._select_keys
                 else itertools.chain(*row)
                 for row in self._order_and_limit()(filtered_rows))
 
-    def _get_rows_with_join(self):
-        with open(self.table) as left_table, open(self.right_table) as right_table:
-            _, left_rows = self._parse_table(left_table)
-            _, right_rows = self._parse_table(right_table)
-            return itertools.product(left_rows, right_rows)
-
-    def _get_rows_no_join(self):
-        with open(self.table) as table:
-            _, rows = self._parse_table(table)
-            return itertools.product(rows)
+    def _get_rows(self):
+        rows = []
+        for table in self._tables:
+            with open(table.path) as table_file:
+                _, current_rows = self._parse_table(table_file)
+            rows.append(current_rows)
+        return itertools.product(*rows)
 
     def _order_and_limit(self):
         if self._order_key is not None:
