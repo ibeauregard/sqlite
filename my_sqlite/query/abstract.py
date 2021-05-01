@@ -2,7 +2,7 @@ import collections
 from abc import ABC, abstractmethod
 from pathlib import Path
 from config.config import Config
-from ..errors import check_existence
+from ..errors import NoSuchTableError
 import os
 
 
@@ -14,14 +14,22 @@ class AbstractQuery(ABC):
 
     def __init__(self):
         self._tables = []
+        self.table_map = {}
+        self.header_maps = []
 
     @abstractmethod
     def run(self):
         pass
 
-    @check_existence
     def append_table(self, table):
-        self._tables.append(Table(table, path=self.path_from_table_name(table)))
+        table_path = Path(self._database_path) / f'{table}{self._file_extension}'
+        if not table_path.is_file():
+            raise NoSuchTableError(table)
+        self._tables.append(Table(table, path=table_path))
+        with open(table_path) as table_file:
+            headers = self.strip_and_split(next(table_file))
+        self.table_map[table] = max(self.table_map.values(), default=-1) + 1
+        self.header_maps.append({header: i for i, header in enumerate(headers)})
 
     @classmethod
     def _parse_table(cls, table):
@@ -37,10 +45,6 @@ class AbstractQuery(ABC):
     @classmethod
     def strip_and_split(cls, line):
         return line.strip().split(cls._sep)
-
-    @classmethod
-    def path_from_table_name(cls, table):
-        return Path(cls._database_path) / f'{table}{cls._file_extension}'
 
 
 Table = collections.namedtuple('Table', ['name', 'path'])

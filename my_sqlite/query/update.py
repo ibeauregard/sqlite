@@ -1,29 +1,25 @@
-from .abstract import AbstractQuery
+from .filtered import FilteredQuery
 from ..errors import NoSuchColumnError, translate_key_error
 
 
-class Update(AbstractQuery):
+class Update(FilteredQuery):
     def __init__(self, table):
         super().__init__()
-        self.table = table
+        self.append_table(table)
         self._update_dict = None
-        self._filter = lambda entry, header_map: True
 
     def set(self, update_dict):
         self._update_dict = update_dict
         return self
 
-    def where(self, column, *, condition):
-        self._filter = lambda entry, header_map: condition(entry[header_map[column]])
-        return self
-
     @translate_key_error
     def run(self):
-        with open(self.table) as table:
+        table_path = self._tables[0].path
+        with open(table_path) as table:
             header_map, entries = self._parse_table(table)
             self._validate_update_dict(header_map)
-            updated_entries = [self._update(entry, header_map) for entry in entries]
-        with open(self.table, 'w') as table:
+            updated_entries = [self._update(entry) for entry in entries]
+        with open(table_path, 'w') as table:
             table.write(self._join_entries(header_map, updated_entries))
 
     def _validate_update_dict(self, headers):
@@ -31,8 +27,8 @@ class Update(AbstractQuery):
         if difference:
             raise NoSuchColumnError(difference.pop())
 
-    def _update(self, entry, header_map):
-        if self._filter(entry, header_map):
+    def _update(self, entry):
+        if self._where_filter((entry,)):
             for column, value in self._update_dict.items():
-                entry[header_map[column]] = value
+                entry[self.header_maps[0][column]] = value
         return entry

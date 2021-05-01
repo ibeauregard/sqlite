@@ -2,8 +2,19 @@ import functools
 from timeit import default_timer
 
 from my_sqlite.errors import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError
+from my_sqlite.query.delete import Delete
 from my_sqlite.query.select import Select
 from my_sqlite.operator import operator
+from my_sqlite.query.update import Update
+
+
+def display_time(test):
+    @functools.wraps(test)
+    def timed_test(*args, **kwargs):
+        t = default_timer()
+        test(*args, **kwargs)
+        print(default_timer() - t, end='\n\n')
+    return timed_test
 
 
 def error_handling(test):
@@ -17,55 +28,9 @@ def error_handling(test):
 
 
 if __name__ == '__main__':
-    # # Delete
-    # print('DeleteQuery')
-    # input_value = converted(300)
-    # table = 'Roger'
-    # column = 'weight'
-    #
-    # def condition(value):
-    #     return operator.lt(converted(value), input_value)
-    #
-    # @error_handling
-    # def delete(table, column, condition):
-    #     Delete().from_(table).where(column, condition).run()
-    # delete(table, column, condition)
-    #
-    # table = 'Players'
-    # column = 'pickup'
-    # delete(table, column, condition)
-    # column = 'weight'
-    # delete(table, column, condition)
-    #
-    # # Update
-    # print('\nUpdateQuery')
-    #
-    # def condition(value):
-    #     return operator.gt(converted(value), input_value)
-    # data = {'birthCountry': 'USofA'}
-    #
-    # table = 'Roger'
-    # @error_handling
-    # def update(table, data, column, condition):
-    #     Update(table).set(data).where(column, condition).run()
-    # update(table, data, column, condition)
-    # table = 'Players'
-    #
-    # data = {'pickup': 'USofA'}
-    # update(table, data, column, condition)
-    # data = {'birthCountry': 'USofA'}
-    #
-    # column = 'pickup'
-    # update(table, data, column, condition)
-    # column = 'weight'
-    #
-    # update(table, data, column, condition)
-    # data = {'birthCountry': 'USA'}
-    # update(table, data, column, condition)
-
     # Select
-    print('\nSelectQuery')
 
+    @display_time
     @error_handling
     def select(columns, *, from_, join=None, where=None, order_by=None, limit=None):
         query = Select().from_(from_)
@@ -81,20 +46,68 @@ if __name__ == '__main__':
             query = query.limit(limit)
         print(*('|'.join(entry) for entry in query.run()), sep='\n')
 
-    t = default_timer()
     select(('nameFirst', 'nameLast', 'yearID', 'HR'),
            from_='Players',
            join=('Batting', ('Players.ID', 'playerID')),
            where=('HR', (operator.gt, 20)),
            order_by=('HR', False),
-           limit=None)
-    print(default_timer() - t)
+           limit=10)
 
-    t = default_timer()
     select(('nameFirst', 'nameLast'),
            from_='Players',
            # join=('Batting', ('Players.ID', 'playerID')),
            # where=('HR', (operator.gt, 20)),
            # order_by=('HR', False),
-           limit=None)
-    print(default_timer() - t)
+           limit=10)
+
+    select(('roger', 'nameLast'),
+           from_='Players',
+           # join=('Batting', ('Players.ID', 'playerID')),
+           # where=('HR', (operator.gt, 20)),
+           # order_by=('HR', False),
+           limit=10)
+
+    select(('nameFirst', 'nameLast'),
+           from_='Roger',
+           # join=('Batting', ('Players.ID', 'playerID')),
+           # where=('HR', (operator.gt, 20)),
+           # order_by=('HR', False),
+           limit=10)
+
+    select(('nameFirst', 'nameLast', 'yearID', 'HR'),
+           from_='Players',
+           join=('Batting', ('Players.ID', 'playerID')),
+           where=('HR', (operator.gt, 20)),
+           order_by=('ID', False),
+           limit=10)
+
+    # Update
+
+    @display_time
+    @error_handling
+    def update(table, *, set, where=None):
+        query = Update(table).set(set)
+        if where is not None:
+            query = query.where(where[0], condition=lambda value: where[1][0](value, where[1][1]))
+        query.run()
+
+    update('Roger', set={}, where=('roger', (operator.eq, True)))
+    update('Players', set={}, where=('roger', (operator.eq, True)))
+    update('Players', set={}, where=('birthCountry', (operator.eq, 'USA')))
+    update('Players', set={'birthCountry': 'USofA'}, where=('birthCountry', (operator.eq, 'USA')))
+    update('Players', set={'birthCountry': 'USA'}, where=('birthCountry', (operator.eq, 'USofA')))
+
+    # Delete
+
+    @display_time
+    @error_handling
+    def delete(*, from_, where=None):
+        query = Delete().from_(from_)
+        if where is not None:
+            query = query.where(where[0], condition=lambda value: where[1][0](value, where[1][1]))
+        query.run()
+
+    delete(from_='Roger')
+    delete(from_='Players', where=('roger', (1, 2)))
+    delete(from_='Players', where=('nameGiven', (operator.eq, 'Roger Cyr')))
+    delete(from_='Players', where=('birthCountry', (operator.eq, 'USA')))
