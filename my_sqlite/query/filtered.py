@@ -34,7 +34,8 @@ class KeyMapper:
             return self._map_two_parts(key_parts)
 
     def _map_one_part(self, key):
-        matches = tuple((i, headers[key]) for i, headers in enumerate(self.query.header_maps) if key in headers)
+        matches = tuple((table.index, table.header_map[key])
+                        for table in self.query.table_map.values() if key in table.header_map)
         if len(matches) > 1:
             raise AmbiguousColumnNameError(key)
         if not matches:
@@ -43,8 +44,8 @@ class KeyMapper:
 
     def _map_two_parts(self, parts):
         try:
-            table_index = self.query.table_map[parts[0]]
-            return Key(table=table_index, column=self.query.header_maps[table_index][parts[1]])
+            table = self.query.table_map[parts[0]]
+            return Key(table=table.index, column=table.header_map[parts[1]])
         except KeyError:
             raise NoSuchColumnError('.'.join(parts))
 

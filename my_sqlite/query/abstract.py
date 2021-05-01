@@ -13,9 +13,7 @@ class AbstractQuery(ABC):
     _linesep = os.linesep
 
     def __init__(self):
-        self._tables = []
         self.table_map = {}
-        self.header_maps = []
 
     @abstractmethod
     def run(self):
@@ -25,26 +23,26 @@ class AbstractQuery(ABC):
         table_path = Path(self._database_path) / f'{table}{self._file_extension}'
         if not table_path.is_file():
             raise NoSuchTableError(table)
-        self._tables.append(Table(table, path=table_path))
         with open(table_path) as table_file:
             headers = self.strip_and_split(next(table_file))
-        self.table_map[table] = max(self.table_map.values(), default=-1) + 1
-        self.header_maps.append({header: i for i, header in enumerate(headers)})
+        self.table_map[table] = Table(index=len(self.table_map),
+                                      path=table_path,
+                                      header_map={header: i for i, header in enumerate(headers)})
 
     @classmethod
     def _parse_table(cls, table):
-        header_map = {header: i for i, header in enumerate(cls.strip_and_split(next(table)))}
+        next(table)  # skip header
         entries = list(map(cls.strip_and_split, table))
-        return header_map, entries
+        return entries
 
-    @classmethod
-    def _join_entries(cls, headers, entries):
-        return f"{cls._sep.join(headers)}{cls._linesep}" \
-               f"{os.linesep.join(cls._sep.join(entry) for entry in entries)}{cls._linesep}"
+    def _serialize_table(self, entries):
+        header_map = next(iter(self.table_map.values())).header_map
+        return f"{self._sep.join(header_map)}{self._linesep}" \
+               f"{os.linesep.join(self._sep.join(entry) for entry in entries)}{self._linesep}"
 
     @classmethod
     def strip_and_split(cls, line):
         return line.strip().split(cls._sep)
 
 
-Table = collections.namedtuple('Table', ['name', 'path'])
+Table = collections.namedtuple('Table', ['index', 'path', 'header_map'])

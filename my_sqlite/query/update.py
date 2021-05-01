@@ -1,5 +1,5 @@
 from .filtered import FilteredQuery
-from ..errors import NoSuchColumnError, translate_key_error
+from ..errors import NoSuchColumnError
 
 
 class Update(FilteredQuery):
@@ -9,26 +9,23 @@ class Update(FilteredQuery):
         self._update_dict = None
 
     def set(self, update_dict):
-        self._update_dict = update_dict
+        header_map = next(iter(self.table_map.values())).header_map
+        try:
+            self._update_dict = {header_map[col]: value for col, value in update_dict.items()}
+        except KeyError as key:
+            raise NoSuchColumnError(str(key).strip('"\''))
         return self
 
-    @translate_key_error
     def run(self):
-        table_path = self._tables[0].path
-        with open(table_path) as table:
-            header_map, entries = self._parse_table(table)
-            self._validate_update_dict(header_map)
-            updated_entries = [self._update(entry) for entry in entries]
-        with open(table_path, 'w') as table:
-            table.write(self._join_entries(header_map, updated_entries))
-
-    def _validate_update_dict(self, headers):
-        difference = set(self._update_dict).difference(headers)
-        if difference:
-            raise NoSuchColumnError(difference.pop())
+        table = next(iter(self.table_map.values()))
+        with open(table.path) as table_file:
+            entries = self._parse_table(table_file)
+            updated_entries = (self._update(entry) for entry in entries)
+        with open(table.path, 'w') as table_file:
+            table_file.write(self._serialize_table(updated_entries))
 
     def _update(self, entry):
         if self._where_filter((entry,)):
             for column, value in self._update_dict.items():
-                entry[self.header_maps[0][column]] = value
+                entry[column] = value
         return entry

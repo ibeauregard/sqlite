@@ -1,5 +1,4 @@
 from .filtered import FilteredQuery
-from ..errors import translate_key_error
 
 
 class Delete(FilteredQuery):
@@ -10,11 +9,10 @@ class Delete(FilteredQuery):
         self.append_table(table)
         return self
 
-    @translate_key_error
     def run(self):
-        table_path = self._tables[0].path
-        with open(table_path) as table:
-            header_map, entries = self._parse_table(table)
+        table = next(iter(self.table_map.values()))
+        with open(table.path) as table_file:
+            entries = self._parse_table(table_file)
             non_deleted_entries = [entry for entry in entries if not self._where_filter((entry,))]
-        with open(table_path, 'w') as table:
-            table.write(self._join_entries(header_map, non_deleted_entries))
+        with open(table.path, 'w') as table_file:
+            table_file.write(self._serialize_table(non_deleted_entries))

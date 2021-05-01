@@ -12,8 +12,9 @@ def display_time(test):
     @functools.wraps(test)
     def timed_test(*args, **kwargs):
         t = default_timer()
-        test(*args, **kwargs)
+        return_value = test(*args, **kwargs)
         print(default_timer() - t, end='\n\n')
+        return return_value
     return timed_test
 
 
@@ -21,7 +22,7 @@ def error_handling(test):
     @functools.wraps(test)
     def test_with_error_handling(*args, **kwargs):
         try:
-            test(*args, **kwargs)
+            return test(*args, **kwargs)
         except (NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError) as e:
             print(e)
     return test_with_error_handling
@@ -93,7 +94,7 @@ if __name__ == '__main__':
 
     update('Roger', set={}, where=('roger', (operator.eq, True)))
     update('Players', set={}, where=('roger', (operator.eq, True)))
-    update('Players', set={}, where=('birthCountry', (operator.eq, 'USA')))
+    update('Players', set={'roger': 'cyr'}, where=None)
     update('Players', set={'birthCountry': 'USofA'}, where=('birthCountry', (operator.eq, 'USA')))
     update('Players', set={'birthCountry': 'USA'}, where=('birthCountry', (operator.eq, 'USofA')))
 

@@ -52,12 +52,12 @@ class Select(FilteredQuery):
                 for row in self._order_and_limit()(filtered_rows))
 
     def _get_rows(self):
-        rows = []
-        for table in self._tables:
+        tables = []
+        for table in self.table_map.values():
             with open(table.path) as table_file:
-                _, current_rows = self._parse_table(table_file)
-            rows.append(current_rows)
-        return itertools.product(*rows)
+                rows = self._parse_table(table_file)
+            tables.append(rows)
+        return itertools.product(*tables)
 
     def _order_and_limit(self):
         if self._order_key is not None:
@@ -70,5 +70,3 @@ class Select(FilteredQuery):
                 return lambda rows: sorted(rows, key=self._order_key, reverse=not self._order_ascending)
         else:
             return lambda rows: itertools.islice(rows, self._limit)
-
-
