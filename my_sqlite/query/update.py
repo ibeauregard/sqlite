@@ -1,5 +1,5 @@
 from .filtered import FilteredQuery
-from ..errors import NoSuchColumnError
+from ..errors import NoSuchColumnError, translate_key_error
 
 
 class Update(FilteredQuery):
@@ -8,12 +8,10 @@ class Update(FilteredQuery):
         self.append_table(table)
         self._update_dict = None
 
+    @translate_key_error
     def set(self, update_dict):
         header_map = next(iter(self.table_map.values())).header_map
-        try:
-            self._update_dict = {header_map[col]: value for col, value in update_dict.items()}
-        except KeyError as key:
-            raise NoSuchColumnError(str(key).strip('"\''))
+        self._update_dict = {header_map[col]: value for col, value in update_dict.items()}
         return self
 
     def run(self):

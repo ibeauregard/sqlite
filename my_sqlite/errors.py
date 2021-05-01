@@ -1,3 +1,4 @@
+import functools
 from abc import ABC, abstractmethod
 
 
@@ -27,3 +28,13 @@ class NoSuchColumnError(ColumnError, Exception):
 class AmbiguousColumnNameError(ColumnError, Exception):
     def __str__(self):
         return f'Error: ambiguous column name: {self.column}'
+
+
+def translate_key_error(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except KeyError as key:
+            raise NoSuchColumnError(str(key).strip('"\''))
+    return wrapper

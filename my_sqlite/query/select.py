@@ -53,7 +53,7 @@ class Select(FilteredQuery):
 
     def _get_rows(self):
         tables = []
-        for table in self.table_map.values():
+        for table in sorted(self.table_map.values(), key=lambda t: t.index):
             with open(table.path) as table_file:
                 rows = self._parse_table(table_file)
             tables.append(rows)
