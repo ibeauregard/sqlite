@@ -30,6 +30,15 @@ class AmbiguousColumnNameError(ColumnError, Exception):
         return f'Error: ambiguous column name: {self.column}'
 
 
+class BulkInsertError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f'Error: {self.message}'
+
+
 def translate_key_error(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):

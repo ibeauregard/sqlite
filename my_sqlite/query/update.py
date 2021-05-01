@@ -1,5 +1,5 @@
 from .filtered import FilteredQuery
-from ..errors import NoSuchColumnError, translate_key_error
+from ..errors import translate_key_error
 
 
 class Update(FilteredQuery):
