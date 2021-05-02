@@ -28,7 +28,8 @@ class Select(FilteredQuery):
         self._on_filter = lambda row: row[key1.table][key1.column] == row[key2.table][key2.column]
 
     def select(self, columns):
-        self._select_keys = self._key_mapper.map(*columns)
+        self._select_keys = tuple(itertools.chain.from_iterable(
+            self._key_mapper.map(col) if col != '*' else self._get_full_key_set() for col in columns))
         return self
 
     def order_by(self, column, *, ascending=True):
@@ -53,7 +54,7 @@ class Select(FilteredQuery):
 
     def _get_rows(self):
         tables = []
-        for table in sorted(self.table_map.values(), key=lambda t: t.index):
+        for table in self.get_tables_in_query_order():
             with open(table.path) as table_file:
                 rows = self._parse_table(table_file)
             tables.append(rows)

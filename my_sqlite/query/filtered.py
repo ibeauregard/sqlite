@@ -1,4 +1,5 @@
 import collections
+import itertools
 from abc import abstractmethod
 
 from my_sqlite.conversion import converted
@@ -17,6 +18,11 @@ class FilteredQuery(AbstractQuery):
         [key] = self._key_mapper.map(column)
         self._where_filter = lambda row: condition(converted(row[key.table][key.column]))
         return self
+
+    def _get_full_key_set(self):
+        return (Key(*key)
+                for key in itertools.chain.from_iterable(itertools.product((table.index,), range(len(table.header_map)))
+                                                         for table in self.get_tables_in_query_order()))
 
 
 class KeyMapper:
