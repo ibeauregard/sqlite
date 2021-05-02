@@ -1,5 +1,6 @@
 import heapq
 import itertools
+import re
 
 from .filtered import FilteredQuery
 from ..conversion import converted
@@ -24,16 +25,20 @@ class Select(FilteredQuery):
         return self
 
     def _on(self, join_keys):
-        key1, key2 = self._key_mapper.map(*join_keys)
+        key1, key2 = self._map_keys(*join_keys)
         self._on_filter = lambda row: row[key1.table][key1.column] == row[key2.table][key2.column]
 
     def select(self, columns):
-        self._select_keys = tuple(itertools.chain.from_iterable(
-            self._key_mapper.map(col) if col != '*' else self._get_full_key_set() for col in columns))
+        key_groups = []
+        for column in columns:
+            matches = re.match(r'(|(?P<table>.+)\.)(?=\*$)', column)
+            key_groups.append(self._map_keys(column) if matches is None
+                              else self._get_key_set(matches.groupdict()['table']))
+        self._select_keys = tuple(itertools.chain.from_iterable(key_groups))
         return self
 
     def order_by(self, column, *, ascending=True):
-        [key] = self._key_mapper.map(column)
+        [key] = self._map_keys(column)
 
         def order_key(row):
             value = converted(row[key.table][key.column])

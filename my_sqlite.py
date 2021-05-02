@@ -62,6 +62,27 @@ if __name__ == '__main__':
            # order_by=('HR', False),
            limit=10)
 
+    select(('*',),
+           from_='Players',
+           # join=('Batting', ('Players.ID', 'playerID')),
+           # where=('HR', (operator.gt, 20)),
+           # order_by=('HR', False),
+           limit=10)
+
+    select(('Players.*',),
+           from_='Players',
+           # join=('Batting', ('Players.ID', 'playerID')),
+           # where=('HR', (operator.gt, 20)),
+           # order_by=('HR', False),
+           limit=10)
+
+    select(('Batting.*',),
+           from_='Players',
+           # join=('Batting', ('Players.ID', 'playerID')),
+           # where=('HR', (operator.gt, 20)),
+           # order_by=('HR', False),
+           limit=10)
+
     select(('nameFirst', '*', 'nameLast'),
            from_='Players',
            join=('Batting', ('Players.ID', 'playerID')),
