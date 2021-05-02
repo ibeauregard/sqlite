@@ -48,65 +48,86 @@ if __name__ == '__main__':
             query = query.limit(limit)
         print(*('|'.join(entry) for entry in query.run()), sep='\n')
 
-    select(('nameFirst', 'nameLast', 'yearID', 'HR'),
-           from_='Players',
-           join=('Batting', ('Players.ID', 'playerID')),
-           where=('HR', (operator.gt, 20)),
-           order_by=('HR', False),
+    select(('nameFirst', 'nameLast', 'yearID', 'batting.HR'),
+           from_='players',
+           join=('batting', ('players.ID', 'playerID')),
+           where=('batting.HR', (operator.gt, 20)),
+           order_by=('batting.HR', False),
            limit=10)
 
     select(('nameFirst', 'nameLast'),
-           from_='Players',
-           # join=('Batting', ('Players.ID', 'playerID')),
+           from_='players',
+           # join=('batting', ('players.ID', 'playerID')),
            # where=('HR', (operator.gt, 20)),
            # order_by=('HR', False),
            limit=10)
 
     select(('*',),
-           from_='Players',
-           # join=('Batting', ('Players.ID', 'playerID')),
+           from_='players',
+           # join=('batting', ('players.ID', 'playerID')),
            # where=('HR', (operator.gt, 20)),
            # order_by=('HR', False),
            limit=10)
 
-    select(('Players.*',),
-           from_='Players',
-           # join=('Batting', ('Players.ID', 'playerID')),
+    select(('players.*',),
+           from_='players',
+           # join=('batting', ('players.ID', 'playerID')),
            # where=('HR', (operator.gt, 20)),
            # order_by=('HR', False),
            limit=10)
 
-    select(('Batting.*',),
-           from_='Players',
-           # join=('Batting', ('Players.ID', 'playerID')),
+    select(('batting.*',),
+           from_='players',
+           # join=('batting', ('players.ID', 'playerID')),
            # where=('HR', (operator.gt, 20)),
            # order_by=('HR', False),
            limit=10)
 
     select(('nameFirst', '*', 'nameLast'),
-           from_='Players',
-           join=('Batting', ('Players.ID', 'playerID')),
+           from_='players',
+           join=('batting', ('players.ID', 'playerID')),
+           where=('HR', (operator.gt, 20)),
+           order_by=('HR', False),
+           limit=10)
+
+    select(('nameFirst', 'players.*', 'nameLast'),
+           from_='players',
+           join=('batting', ('players.ID', 'playerID')),
+           where=('HR', (operator.gt, 20)),
+           order_by=('HR', False),
+           limit=10)
+
+    select(('nameFirst', 'batting.*', 'nameLast'),
+           from_='players',
+           join=('batting', ('players.ID', 'playerID')),
+           where=('HR', (operator.gt, 20)),
+           order_by=('HR', False),
+           limit=10)
+
+    select(('nameFirst', 'pitching.*', 'nameLast'),
+           from_='players',
+           join=('batting', ('players.ID', 'playerID')),
            where=('HR', (operator.gt, 20)),
            order_by=('HR', False),
            limit=10)
 
     select(('roger', 'nameLast'),
-           from_='Players',
-           # join=('Batting', ('Players.ID', 'playerID')),
+           from_='players',
+           # join=('batting', ('players.ID', 'playerID')),
            # where=('HR', (operator.gt, 20)),
            # order_by=('HR', False),
            limit=10)
 
     select(('nameFirst', 'nameLast'),
            from_='Roger',
-           # join=('Batting', ('Players.ID', 'playerID')),
+           # join=('batting', ('players.ID', 'playerID')),
            # where=('HR', (operator.gt, 20)),
            # order_by=('HR', False),
            limit=10)
 
     select(('nameFirst', 'nameLast', 'yearID', 'HR'),
-           from_='Players',
-           join=('Batting', ('Players.ID', 'playerID')),
+           from_='players',
+           join=('batting', ('players.ID', 'playerID')),
            where=('HR', (operator.gt, 20)),
            order_by=('ID', False),
            limit=10)
@@ -122,10 +143,10 @@ if __name__ == '__main__':
         query.run()
 
     update('Roger', set={}, where=('roger', (operator.eq, True)))
-    update('Players', set={}, where=('roger', (operator.eq, True)))
-    update('Players', set={'roger': 'cyr'}, where=None)
-    update('Players', set={'birthCountry': 'USofA'}, where=('birthCountry', (operator.eq, 'USA')))
-    update('Players', set={'birthCountry': 'USA'}, where=('birthCountry', (operator.eq, 'USofA')))
+    update('players', set={}, where=('roger', (operator.eq, True)))
+    update('players', set={'roger': 'cyr'}, where=None)
+    update('players', set={'birthCountry': 'USofA'}, where=('birthCountry', (operator.eq, 'USA')))
+    update('players', set={'birthCountry': 'USA'}, where=('birthCountry', (operator.eq, 'USofA')))
 
     # Delete
 
@@ -138,9 +159,9 @@ if __name__ == '__main__':
         query.run()
 
     delete(from_='Roger')
-    delete(from_='Players', where=('roger', (1, 2)))
-    delete(from_='Players', where=('nameGiven', (operator.eq, 'Roger Cyr')))
-    delete(from_='Players', where=('birthCountry', (operator.eq, 'USA')))
+    delete(from_='players', where=('roger', (1, 2)))
+    delete(from_='players', where=('nameGiven', (operator.eq, 'Roger Cyr')))
+    delete(from_='players', where=('birthCountry', (operator.eq, 'USA')))
 
     # Insert
 
@@ -161,26 +182,26 @@ if __name__ == '__main__':
     insert(into={'table': 'Roger', 'columns': None},
            values=None)
 
-    insert(into={'table': 'Players', 'columns': ('ID', 'roger')},
+    insert(into={'table': 'players', 'columns': ('ID', 'roger')},
            values=None)
 
-    insert(into={'table': 'Players', 'columns': None},
+    insert(into={'table': 'players', 'columns': None},
            values=None)
 
-    insert(into={'table': 'Players', 'columns': ('ID', 'nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('ID', 'nameFirst', 'nameLast')},
            values=None)
 
-    insert(into={'table': 'Players', 'columns': ('ID', 'nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('ID', 'nameFirst', 'nameLast')},
            values=((1, 2, 3), (1, 2, 3), (1, 2)))
 
-    insert(into={'table': 'Players', 'columns': ('ID', 'nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('ID', 'nameFirst', 'nameLast')},
            values=((1, 2),))
 
-    insert(into={'table': 'Players', 'columns': None},
+    insert(into={'table': 'players', 'columns': None},
            values=((1, 2),))
 
-    insert(into={'table': 'Players', 'columns': ('nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('nameFirst', 'nameLast')},
            values=(('Roger', 'Cyr'), ('Eric', 'Pickup')))
 
-    insert(into={'table': 'Players', 'columns': ('ID', 'nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('ID', 'nameFirst', 'nameLast')},
            values=(('999', 'Roger', 'Cyr'), ('9999', 'Eric', 'Pickup')))
