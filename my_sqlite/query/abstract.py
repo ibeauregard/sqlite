@@ -27,7 +27,7 @@ class AbstractQuery(ABC):
             headers = self.strip_and_split(next(table_file))
         self.table_map[table] = Table(index=len(self.table_map),
                                       path=table_path,
-                                      header_map={header: i for i, header in enumerate(headers)})
+                                      header_map={header.lower(): i for i, header in enumerate(headers)})
 
     @classmethod
     def _parse_table(cls, table):

@@ -48,88 +48,88 @@ if __name__ == '__main__':
             query = query.limit(limit)
         print(*('|'.join(entry) for entry in query.run()), sep='\n')
 
-    select(('nameFirst', 'nameLast', 'yearID', 'batting.HR'),
+    select(('nAmEfIrSt', 'nAmElAsT', 'yeariD', 'batting.hR'),
            from_='players',
-           join=('batting', ('players.ID', 'playerID')),
-           where=('batting.HR', (operator.gt, 20)),
-           order_by=('batting.HR', False),
+           join=('batting', ('players.iD', 'pLaYeRiD')),
+           where=('batting.hR', (operator.gt, 20)),
+           order_by=('batting.hR', False),
            limit=10)
 
-    select(('nameFirst', 'nameLast'),
+    select(('nAmEfIrSt', 'nAmElAsT'),
            from_='players',
-           # join=('batting', ('players.ID', 'playerID')),
-           # where=('HR', (operator.gt, 20)),
-           # order_by=('HR', False),
+           # join=('batting', ('players.iD', 'pLaYeRiD')),
+           # where=('hR', (operator.gt, 20)),
+           # order_by=('hR', False),
            limit=10)
 
     select(('*',),
            from_='players',
-           # join=('batting', ('players.ID', 'playerID')),
-           # where=('HR', (operator.gt, 20)),
-           # order_by=('HR', False),
+           # join=('batting', ('players.iD', 'pLaYeRiD')),
+           # where=('hR', (operator.gt, 20)),
+           # order_by=('hR', False),
            limit=10)
 
     select(('players.*',),
            from_='players',
-           # join=('batting', ('players.ID', 'playerID')),
-           # where=('HR', (operator.gt, 20)),
-           # order_by=('HR', False),
+           # join=('batting', ('players.iD', 'pLaYeRiD')),
+           # where=('hR', (operator.gt, 20)),
+           # order_by=('hR', False),
            limit=10)
 
     select(('batting.*',),
            from_='players',
-           # join=('batting', ('players.ID', 'playerID')),
-           # where=('HR', (operator.gt, 20)),
-           # order_by=('HR', False),
+           # join=('batting', ('players.iD', 'pLaYeRiD')),
+           # where=('hR', (operator.gt, 20)),
+           # order_by=('hR', False),
            limit=10)
 
-    select(('nameFirst', '*', 'nameLast'),
+    select(('nAmEfIrSt', '*', 'nAmElAsT'),
            from_='players',
-           join=('batting', ('players.ID', 'playerID')),
-           where=('HR', (operator.gt, 20)),
-           order_by=('HR', False),
+           join=('batting', ('players.iD', 'pLaYeRiD')),
+           where=('hR', (operator.gt, 20)),
+           order_by=('hR', False),
            limit=10)
 
-    select(('nameFirst', 'players.*', 'nameLast'),
+    select(('nAmEfIrSt', 'players.*', 'nAmElAsT'),
            from_='players',
-           join=('batting', ('players.ID', 'playerID')),
-           where=('HR', (operator.gt, 20)),
-           order_by=('HR', False),
+           join=('batting', ('players.iD', 'pLaYeRiD')),
+           where=('hR', (operator.gt, 20)),
+           order_by=('hR', False),
            limit=10)
 
-    select(('nameFirst', 'batting.*', 'nameLast'),
+    select(('nAmEfIrSt', 'batting.*', 'nAmElAsT'),
            from_='players',
-           join=('batting', ('players.ID', 'playerID')),
-           where=('HR', (operator.gt, 20)),
-           order_by=('HR', False),
+           join=('batting', ('players.iD', 'pLaYeRiD')),
+           where=('hR', (operator.gt, 20)),
+           order_by=('hR', False),
            limit=10)
 
-    select(('nameFirst', 'pitching.*', 'nameLast'),
+    select(('nAmEfIrSt', 'pitching.*', 'nAmElAsT'),
            from_='players',
-           join=('batting', ('players.ID', 'playerID')),
-           where=('HR', (operator.gt, 20)),
-           order_by=('HR', False),
+           join=('batting', ('players.iD', 'pLaYeRiD')),
+           where=('hR', (operator.gt, 20)),
+           order_by=('hR', False),
            limit=10)
 
-    select(('roger', 'nameLast'),
+    select(('roger', 'nAmElAsT'),
            from_='players',
-           # join=('batting', ('players.ID', 'playerID')),
-           # where=('HR', (operator.gt, 20)),
-           # order_by=('HR', False),
+           # join=('batting', ('players.iD', 'pLaYeRiD')),
+           # where=('hR', (operator.gt, 20)),
+           # order_by=('hR', False),
            limit=10)
 
-    select(('nameFirst', 'nameLast'),
+    select(('nAmEfIrSt', 'nAmElAsT'),
            from_='Roger',
-           # join=('batting', ('players.ID', 'playerID')),
-           # where=('HR', (operator.gt, 20)),
-           # order_by=('HR', False),
+           # join=('batting', ('players.iD', 'pLaYeRiD')),
+           # where=('hR', (operator.gt, 20)),
+           # order_by=('hR', False),
            limit=10)
 
-    select(('nameFirst', 'nameLast', 'yearID', 'HR'),
+    select(('nAmEfIrSt', 'nAmElAsT', 'yeariD', 'hR'),
            from_='players',
-           join=('batting', ('players.ID', 'playerID')),
-           where=('HR', (operator.gt, 20)),
-           order_by=('ID', False),
+           join=('batting', ('players.iD', 'pLaYeRiD')),
+           where=('hR', (operator.gt, 20)),
+           order_by=('iD', False),
            limit=10)
 
     # Update
@@ -145,8 +145,8 @@ if __name__ == '__main__':
     update('Roger', set={}, where=('roger', (operator.eq, True)))
     update('players', set={}, where=('roger', (operator.eq, True)))
     update('players', set={'roger': 'cyr'}, where=None)
-    update('players', set={'birthCountry': 'USofA'}, where=('birthCountry', (operator.eq, 'USA')))
-    update('players', set={'birthCountry': 'USA'}, where=('birthCountry', (operator.eq, 'USofA')))
+    update('players', set={'bIrThCoUnTrY': 'USofA'}, where=('bIrThCoUnTrY', (operator.eq, 'USA')))
+    update('players', set={'bIrThCoUnTrY': 'USA'}, where=('bIrThCoUnTrY', (operator.eq, 'USofA')))
 
     # Delete
 
@@ -160,8 +160,8 @@ if __name__ == '__main__':
 
     delete(from_='Roger')
     delete(from_='players', where=('roger', (1, 2)))
-    delete(from_='players', where=('nameGiven', (operator.eq, 'Roger Cyr')))
-    delete(from_='players', where=('birthCountry', (operator.eq, 'USA')))
+    delete(from_='players', where=('nAmEgIvEn', (operator.eq, 'Roger Cyr')))
+    delete(from_='players', where=('bIrThCoUnTrY', (operator.eq, 'USA')))
 
     # Insert
 
@@ -182,26 +182,26 @@ if __name__ == '__main__':
     insert(into={'table': 'Roger', 'columns': None},
            values=None)
 
-    insert(into={'table': 'players', 'columns': ('ID', 'roger')},
+    insert(into={'table': 'players', 'columns': ('iD', 'roger')},
            values=None)
 
     insert(into={'table': 'players', 'columns': None},
            values=None)
 
-    insert(into={'table': 'players', 'columns': ('ID', 'nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('iD', 'nAmEfIrSt', 'nAmElAsT')},
            values=None)
 
-    insert(into={'table': 'players', 'columns': ('ID', 'nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('iD', 'nAmEfIrSt', 'nAmElAsT')},
            values=((1, 2, 3), (1, 2, 3), (1, 2)))
 
-    insert(into={'table': 'players', 'columns': ('ID', 'nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('iD', 'nAmEfIrSt', 'nAmElAsT')},
            values=((1, 2),))
 
     insert(into={'table': 'players', 'columns': None},
            values=((1, 2),))
 
-    insert(into={'table': 'players', 'columns': ('nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('nAmEfIrSt', 'nAmElAsT')},
            values=(('Roger', 'Cyr'), ('Eric', 'Pickup')))
 
-    insert(into={'table': 'players', 'columns': ('ID', 'nameFirst', 'nameLast')},
+    insert(into={'table': 'players', 'columns': ('iD', 'nAmEfIrSt', 'nAmElAsT')},
            values=(('999', 'Roger', 'Cyr'), ('9999', 'Eric', 'Pickup')))

@@ -11,7 +11,7 @@ class Update(FilteredQuery):
     @translate_key_error
     def set(self, update_dict):
         header_map = next(iter(self.table_map.values())).header_map
-        self._update_dict = {header_map[col]: value for col, value in update_dict.items()}
+        self._update_dict = {header_map[col.lower()]: value for col, value in update_dict.items()}
         return self
 
     def run(self):

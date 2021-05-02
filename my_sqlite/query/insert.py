@@ -19,7 +19,7 @@ class Insert(AbstractQuery):
         if columns is None:
             self._value_indices = tuple(range(len(table_header)))
         else:
-            self._value_indices = {table_header[column]: i for i, column in enumerate(columns)}
+            self._value_indices = {table_header[column.lower()]: i for i, column in enumerate(columns)}
             if 0 not in self._value_indices:
                 raise BulkInsertError(f"the value of the column at index 0 must be specified")
 

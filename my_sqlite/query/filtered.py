@@ -29,8 +29,9 @@ class FilteredQuery(AbstractQuery):
             return self._map_two_part_key(key_parts)
 
     def _map_one_part_key(self, key):
-        matches = tuple((table.index, table.header_map[key])
-                        for table in self.table_map.values() if key in table.header_map)
+        lower_key = key.lower()
+        matches = tuple((table.index, table.header_map[lower_key])
+                        for table in self.table_map.values() if lower_key in table.header_map)
         if len(matches) > 1:
             raise AmbiguousColumnNameError(key)
         if not matches:
@@ -40,7 +41,7 @@ class FilteredQuery(AbstractQuery):
     def _map_two_part_key(self, parts):
         try:
             table = self.table_map[parts[0]]
-            return Key(table=table.index, column=table.header_map[parts[1]])
+            return Key(table=table.index, column=table.header_map[parts[1].lower()])
         except KeyError:
             raise NoSuchColumnError('.'.join(parts))
 
