@@ -14,3 +14,16 @@ def typesafe(func):
 
 (operator.lt, operator.le, operator.eq, operator.ne, operator.ge, operator.gt)\
     = map(typesafe, (operator.lt, operator.le, operator.eq, operator.ne, operator.ge, operator.gt))
+
+
+class Operator:
+    mapping = {'<': operator.lt,
+               '<=': operator.le,
+               '=': operator.eq,
+               '!=': operator.ne,
+               '>=': operator.ge,
+               '>': operator.gt}
+
+    @classmethod
+    def from_symbol(cls, symbol):
+        return cls.mapping[symbol]

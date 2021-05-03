@@ -3,12 +3,13 @@ import os
 import shutil
 from timeit import default_timer
 
-from my_sqlite.errors import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, BulkInsertError
+from my_sqlite.errors import BulkInsertError
 from my_sqlite.query.delete import Delete
 from my_sqlite.query.insert import Insert
 from my_sqlite.query.select import Select
 from my_sqlite.operator import operator
 from my_sqlite.query.update import Update
+from my_sqlite.runner import error_handling
 
 
 def display_time(test):
@@ -19,16 +20,6 @@ def display_time(test):
         print(f'Test run in {default_timer() - t}s', end='\n\n')
         return return_value
     return timed_test
-
-
-def error_handling(test):
-    @functools.wraps(test)
-    def test_with_error_handling(*args, **kwargs):
-        try:
-            return test(*args, **kwargs)
-        except (NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, BulkInsertError) as e:
-            print(e)
-    return test_with_error_handling
 
 
 def run_test_suite():

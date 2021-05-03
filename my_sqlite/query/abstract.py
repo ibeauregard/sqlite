@@ -25,6 +25,8 @@ class AbstractQuery(ABC):
             raise NoSuchTableError(table)
         with open(table_path) as table_file:
             headers = self.strip_and_split(next(table_file))
+        if table in self.table_map:
+            table += f'__{len(self.table_map)}'
         self.table_map[table] = Table(index=len(self.table_map),
                                       path=table_path,
                                       header_map={header.lower(): i for i, header in enumerate(headers)},

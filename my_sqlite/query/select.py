@@ -21,7 +21,8 @@ class Select(FilteredQuery):
 
     def join(self, table, *, on):
         self.append_table(table)
-        self._on(on)
+        if on is not None:
+            self._on(on)
         return self
 
     def _on(self, join_keys):
