@@ -1,8 +1,8 @@
-import heapq
 import itertools
 import re
 
 from .filtered import FilteredQuery
+from my_sqlite.operator import operator
 from ..conversion import converted
 
 
@@ -11,7 +11,7 @@ class Select(FilteredQuery):
         super().__init__()
         self._on_filter = lambda row: True
         self._select_keys = None
-        self._order_key = None
+        self._order_keys = []
         self._order_ascending = True
         self._limit = None
 
@@ -37,14 +37,9 @@ class Select(FilteredQuery):
         self._select_keys = tuple(itertools.chain.from_iterable(key_groups))
         return self
 
-    def order_by(self, column, *, ascending=True):
-        [key] = self._map_keys(column)
-
-        def order_key(row):
-            value = converted(row[key.table][key.column])
-            return (value == '' if ascending else value != ''), value
-        self._order_key = order_key
-        self._order_ascending = ascending
+    def order_by(self, ordering_terms):
+        columns, ascendings = zip(*ordering_terms)
+        self._order_keys = tuple(zip(self._map_keys(*columns), map(operator.not_, ascendings)))
         return self
 
     def limit(self, limit):
@@ -55,7 +50,7 @@ class Select(FilteredQuery):
         filtered_rows = (row for row in self._get_rows() if self._on_filter(row) and self._where_filter(row))
         return ((row[table][column] for table, column in self._select_keys) if self._select_keys
                 else itertools.chain(*row)
-                for row in self._order_and_limit()(filtered_rows))
+                for row in self._order_and_limit(list(filtered_rows)))
 
     def _get_rows(self):
         tables = []
@@ -65,14 +60,10 @@ class Select(FilteredQuery):
             tables.append(rows)
         return itertools.product(*tables)
 
-    def _order_and_limit(self):
-        if self._order_key is not None:
-            if self._limit:
-                return lambda rows: \
-                    (heapq.nsmallest if self._order_ascending else heapq.nlargest)(self._limit,
-                                                                                   rows,
-                                                                                   key=self._order_key)
-            else:
-                return lambda rows: sorted(rows, key=self._order_key, reverse=not self._order_ascending)
-        else:
-            return lambda rows: itertools.islice(rows, self._limit)
+    def _order_and_limit(self, rows):
+        for key, reverse in reversed(self._order_keys):
+            def sort_key(row):
+                value = converted(row[key.table][key.column])
+                return (value != '' if reverse else value == ''), value
+            rows.sort(key=sort_key, reverse=reverse)
+        return itertools.islice(rows, self._limit)

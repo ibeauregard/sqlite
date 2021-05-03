@@ -43,7 +43,7 @@ if __name__ == '__main__':
         if columns is not None:
             query = query.select(columns)
         if order_by is not None:
-            query = query.order_by(order_by[0], ascending=order_by[1])
+            query = query.order_by(order_by)
         if limit is not None:
             query = query.limit(limit)
         print(*('|'.join(entry) for entry in query.run()), sep='\n')
@@ -52,84 +52,84 @@ if __name__ == '__main__':
            from_='players',
            join=('batting', ('players.iD', 'pLaYeRiD')),
            where=('batting.hR', (operator.gt, 20)),
-           order_by=('batting.hR', False),
+           order_by=(('batting.hR', False), ('nAmElAsT', True), ('nAmEfIrSt', True), ('yEaRiD', True)),
            limit=10)
 
     select(('nAmEfIrSt', 'nAmElAsT'),
            from_='players',
            # join=('batting', ('players.iD', 'pLaYeRiD')),
            # where=('hR', (operator.gt, 20)),
-           # order_by=('hR', False),
+           # order_by=(('hR', False),),
            limit=10)
 
     select(('*',),
            from_='players',
            # join=('batting', ('players.iD', 'pLaYeRiD')),
            # where=('hR', (operator.gt, 20)),
-           # order_by=('hR', False),
+           # order_by=(('hR', False),),
            limit=10)
 
     select(('players.*',),
            from_='players',
            # join=('batting', ('players.iD', 'pLaYeRiD')),
            # where=('hR', (operator.gt, 20)),
-           # order_by=('hR', False),
+           # order_by=(('hR', False),),
            limit=10)
 
     select(('batting.*',),
            from_='players',
            # join=('batting', ('players.iD', 'pLaYeRiD')),
            # where=('hR', (operator.gt, 20)),
-           # order_by=('hR', False),
+           # order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', '*', 'nAmElAsT'),
            from_='players',
            join=('batting', ('players.iD', 'pLaYeRiD')),
            where=('hR', (operator.gt, 20)),
-           order_by=('hR', False),
+           order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', 'players.*', 'nAmElAsT'),
            from_='players',
            join=('batting', ('players.iD', 'pLaYeRiD')),
            where=('hR', (operator.gt, 20)),
-           order_by=('hR', False),
+           order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', 'batting.*', 'nAmElAsT'),
            from_='players',
            join=('batting', ('players.iD', 'pLaYeRiD')),
            where=('hR', (operator.gt, 20)),
-           order_by=('hR', False),
+           order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', 'pitching.*', 'nAmElAsT'),
            from_='players',
            join=('batting', ('players.iD', 'pLaYeRiD')),
            where=('hR', (operator.gt, 20)),
-           order_by=('hR', False),
+           order_by=(('hR', False),),
            limit=10)
 
     select(('roger', 'nAmElAsT'),
            from_='players',
            # join=('batting', ('players.iD', 'pLaYeRiD')),
            # where=('hR', (operator.gt, 20)),
-           # order_by=('hR', False),
+           # order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', 'nAmElAsT'),
            from_='Roger',
            # join=('batting', ('players.iD', 'pLaYeRiD')),
            # where=('hR', (operator.gt, 20)),
-           # order_by=('hR', False),
+           # order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', 'nAmElAsT', 'yeariD', 'hR'),
            from_='players',
            join=('batting', ('players.iD', 'pLaYeRiD')),
            where=('hR', (operator.gt, 20)),
-           order_by=('iD', False),
+           order_by=(('iD', False),),
            limit=10)
 
     # Update
