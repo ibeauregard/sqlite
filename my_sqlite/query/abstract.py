@@ -27,7 +27,8 @@ class AbstractQuery(ABC):
             headers = self.strip_and_split(next(table_file))
         self.table_map[table] = Table(index=len(self.table_map),
                                       path=table_path,
-                                      header_map={header.lower(): i for i, header in enumerate(headers)})
+                                      header_map={header.lower(): i for i, header in enumerate(headers)},
+                                      header_map_case_preserved={header: i for i, header in enumerate(headers)})
 
     @classmethod
     def _parse_table(cls, table):
@@ -36,7 +37,7 @@ class AbstractQuery(ABC):
         return entries
 
     def _serialize_table(self, entries):
-        header_map = next(iter(self.table_map.values())).header_map
+        header_map = next(iter(self.table_map.values())).header_map_case_preserved
         return f"{self._sep.join(header_map)}{self._linesep}" + self._serialize_rows(entries)
 
     @classmethod
@@ -51,4 +52,4 @@ class AbstractQuery(ABC):
         return sorted(self.table_map.values(), key=lambda t: t.index)
 
 
-Table = collections.namedtuple('Table', ['index', 'path', 'header_map'])
+Table = collections.namedtuple('Table', ['index', 'path', 'header_map', 'header_map_case_preserved'])

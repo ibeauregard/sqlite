@@ -1,4 +1,6 @@
 import functools
+import os
+import shutil
 from timeit import default_timer
 
 from my_sqlite.errors import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, BulkInsertError
@@ -14,7 +16,7 @@ def display_time(test):
     def timed_test(*args, **kwargs):
         t = default_timer()
         return_value = test(*args, **kwargs)
-        print(default_timer() - t, end='\n\n')
+        print(f'Test run in {default_timer() - t}s', end='\n\n')
         return return_value
     return timed_test
 
@@ -29,7 +31,7 @@ def error_handling(test):
     return test_with_error_handling
 
 
-if __name__ == '__main__':
+def run_test_suite():
     # Select
 
     @display_time
@@ -57,30 +59,18 @@ if __name__ == '__main__':
 
     select(('nAmEfIrSt', 'nAmElAsT'),
            from_='players',
-           # join=('batting', ('players.iD', 'pLaYeRiD')),
-           # where=('hR', (operator.gt, 20)),
-           # order_by=(('hR', False),),
            limit=10)
 
     select(('*',),
            from_='players',
-           # join=('batting', ('players.iD', 'pLaYeRiD')),
-           # where=('hR', (operator.gt, 20)),
-           # order_by=(('hR', False),),
            limit=10)
 
     select(('players.*',),
            from_='players',
-           # join=('batting', ('players.iD', 'pLaYeRiD')),
-           # where=('hR', (operator.gt, 20)),
-           # order_by=(('hR', False),),
            limit=10)
 
     select(('batting.*',),
            from_='players',
-           # join=('batting', ('players.iD', 'pLaYeRiD')),
-           # where=('hR', (operator.gt, 20)),
-           # order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', '*', 'nAmElAsT'),
@@ -113,16 +103,10 @@ if __name__ == '__main__':
 
     select(('roger', 'nAmElAsT'),
            from_='players',
-           # join=('batting', ('players.iD', 'pLaYeRiD')),
-           # where=('hR', (operator.gt, 20)),
-           # order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', 'nAmElAsT'),
            from_='Roger',
-           # join=('batting', ('players.iD', 'pLaYeRiD')),
-           # where=('hR', (operator.gt, 20)),
-           # order_by=(('hR', False),),
            limit=10)
 
     select(('nAmEfIrSt', 'nAmElAsT', 'yeariD', 'hR'),
@@ -205,3 +189,12 @@ if __name__ == '__main__':
 
     insert(into={'table': 'players', 'columns': ('iD', 'nAmEfIrSt', 'nAmElAsT')},
            values=(('999', 'Roger', 'Cyr'), ('9999', 'Eric', 'Pickup')))
+
+
+if __name__ == '__main__':
+    shutil.copy2('mlb/players.csv', 'mlb/players.csv.backup')
+    try:
+        run_test_suite()
+    finally:
+        shutil.copy2('mlb/players.csv.backup', 'mlb/players.csv')
+        os.remove('mlb/players.csv.backup')
