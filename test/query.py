@@ -3,12 +3,9 @@ import os
 import shutil
 from timeit import default_timer
 
-from my_sqlite.errors import BulkInsertError
-from my_sqlite.query.delete import Delete
-from my_sqlite.query.insert import Insert
-from my_sqlite.query.select import Select
+from my_sqlite.error import BulkInsertError
+from my_sqlite.query import Delete, Insert, Select, Update
 from my_sqlite.operator import operator
-from my_sqlite.query.update import Update
 from my_sqlite.runner import error_handling
 
 

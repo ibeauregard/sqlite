@@ -1,6 +1,6 @@
 import sys
 
-from my_sqlite.runner import Runner
+from my_sqlite.runner import QueryRunner
 
 if __name__ == '__main__':
     try:
@@ -15,6 +15,6 @@ if __name__ == '__main__':
                 line = input().strip()
                 lines.append(line)
             for query in filter(None, map(str.strip, ' '.join(lines).split(';'))):
-                Runner.execute(query)
+                QueryRunner.execute(query)
     except EOFError:
         sys.exit()
