@@ -1,7 +1,6 @@
 import collections
 import itertools
 import operator
-import os
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -15,8 +14,8 @@ from my_sqlite.error import NoSuchTableError, AmbiguousColumnNameError, NoSuchCo
 class AbstractQuery(ABC):
     _database_path = Config.database_path
     _file_extension = Config.table_filename_extension
-    _sep = Config.column_separator
-    _linesep = os.linesep
+    _unit_sep = Config.unit_separator
+    _record_sep = Config.record_separator
 
     def __init__(self):
         self.table_map = {}
@@ -30,7 +29,7 @@ class AbstractQuery(ABC):
         if not table_path.is_file():
             raise NoSuchTableError(table)
         with open(table_path) as table_file:
-            headers = self.strip_and_split(next(table_file))
+            headers = self.strip_and_split(table_file.read().partition(self._record_sep)[0])
         if table in self.table_map:
             table += f'__{len(self.table_map)}'
         self.table_map[table] = Table(index=len(self.table_map),
@@ -39,23 +38,23 @@ class AbstractQuery(ABC):
                                       header_map_case_preserved={header: i for i, header in enumerate(headers)})
 
     @classmethod
-    def _parse_table(cls, table):
-        next(table)  # skip header
-        entries = list(map(cls.strip_and_split, table))
-        return entries
+    def _parse_table(cls, file):
+        lines = file.read().split(cls._record_sep)
+        records = itertools.islice(lines, 1, None)  # skip header
+        return map(cls.strip_and_split, records)
 
     def _serialize_table(self, entries):
         header_map = next(iter(self.table_map.values())).header_map_case_preserved
-        return f"{self._sep.join(header_map)}{self._linesep}{self._serialize_rows(entries)}"
+        serialized_rows = self._serialize_rows(entries)
+        return f"{self._unit_sep.join(header_map)}{self._record_sep if serialized_rows else ''}{serialized_rows}"
 
     @classmethod
     def _serialize_rows(cls, entries):
-        serialized_rows = cls._linesep.join(cls._sep.join(entry) for entry in entries)
-        return f"{serialized_rows}{cls._linesep}" if serialized_rows else serialized_rows
+        return cls._record_sep.join(cls._unit_sep.join(entry) for entry in entries)
 
     @classmethod
     def strip_and_split(cls, line):
-        return line.strip(cls._linesep).split(cls._sep)
+        return line.rstrip(cls._record_sep).split(cls._unit_sep)
 
     def get_tables_in_query_order(self):
         return sorted(self.table_map.values(), key=lambda t: t.index)
