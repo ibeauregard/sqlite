@@ -1,12 +1,13 @@
 import collections
 import functools
 import re
+from abc import ABC, abstractmethod
 
 from my_sqlite.conversion import converted
 from my_sqlite.error import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, BulkInsertError, \
     QuerySyntaxError
 from my_sqlite.operator import Operator
-from my_sqlite.query import Select
+from my_sqlite.query import Select, Update
 
 
 def non_null_argument(func):
@@ -19,19 +20,46 @@ def non_null_argument(func):
     return wrapper
 
 
-class SelectQueryRunner:
+class AbstractSpecializedQueryRunner(ABC):
+    not_word_neither_dot = r'[^.A-Za-z0-9_]+'
+
+    def __init__(self, *, query):
+        self.query = query
+
+    @staticmethod
+    @property
+    @abstractmethod
+    def pattern():
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_parts(cls, parts):
+        pass
+
+    @non_null_argument
+    def _where(self, raw_value):
+        try:
+            column, operator, input_value = (token.strip() for token in re.split(r'(<=|<|=|!=|>=|>)', raw_value))
+            [column] = re.split(self.not_word_neither_dot, column)
+        except ValueError:
+            raise QuerySyntaxError('WHERE clause syntax expected to be <column> <operator> <value>, '
+                                   'where <operator> is one of <, <=, =, !=, >=, >')
+        operator, input_value = Operator.from_symbol(operator), converted(input_value.strip('\'\"'))
+        self.query.where(column, condition=lambda value: operator(value, input_value))
+
+
+class SelectQueryRunner(AbstractSpecializedQueryRunner):
     pattern = r'(?i:SELECT)\s+(?P<select>.+)' \
               r'\s+(?i:FROM)\s+(?P<from_>.+?)' \
               r'(\s+(?i:JOIN)\s+(?P<join>.+?)(\s+(?i:ON)\s+(?P<on>.+?))?)?' \
               r'(\s+(?i:WHERE)\s+(?P<where>.+?))?' \
               r'(\s+(?i:ORDER\s+BY)\s+(?P<order_by>.+?))?' \
               r'(\s+(?i:LIMIT)\s+(?P<limit>.+?))?'
-    QueryParts = collections.namedtuple('QueryParts',
-                                        ['select', 'from_', 'join', 'on', 'where', 'order_by', 'limit'])
-    not_word_neither_dot = r'[^.A-Za-z0-9_]+'
+    QueryParts = collections.namedtuple('QueryParts', ['select', 'from_', 'join', 'on', 'where', 'order_by', 'limit'])
 
     def __init__(self):
-        self.query = Select()
+        super().__init__(query=Select())
 
     @classmethod
     def from_parts(cls, parts):
@@ -58,17 +86,6 @@ class SelectQueryRunner:
         except ValueError:
             raise QuerySyntaxError('JOIN clause expects exactly one table name')
         self.query.join(table, on=self._get_on_keys(raw_on))
-
-    @non_null_argument
-    def _where(self, raw_value):
-        try:
-            column, operator, input_value = (token.strip() for token in re.split(r'(<=|<|=|!=|>=|>)', raw_value))
-            [column] = re.split(self.not_word_neither_dot, column)
-        except ValueError:
-            raise QuerySyntaxError('WHERE clause syntax expected to be <column> <operator> <value>, '
-                                   'where <operator> is one of <, <=, =, !=, >=, >')
-        operator, input_value = Operator.from_symbol(operator), converted(input_value)
-        self.query.where(column, condition=lambda value: operator(value, input_value))
 
     def _select(self, raw_value):
         self.query.select(filter(None, re.split(r'\s*,\s*', raw_value)))
@@ -104,6 +121,42 @@ class SelectQueryRunner:
         return on_left, on_right
 
 
+class UpdateQueryRunner(AbstractSpecializedQueryRunner):
+    pattern = r'(?i:UPDATE)\s+(?P<update>.+)\s+(?i:SET)\s+(?P<set>.+?)(\s+(?i:WHERE)\s+(?P<where>.+?))?'
+    QueryParts = collections.namedtuple('QueryParts', ['update', 'set', 'where'])
+
+    def __init__(self):
+        super().__init__(query=None)
+
+    @classmethod
+    def from_parts(cls, parts):
+        parts, runner = cls.QueryParts(**parts.groupdict()), cls()
+        runner._update(parts.update)
+        runner._set(parts.set)
+        runner._where(parts.where)
+        runner.query.run()
+
+    def _update(self, raw_value):
+        try:
+            [table] = re.split(self.not_word_neither_dot, raw_value)
+        except ValueError:
+            raise QuerySyntaxError('UPDATE expects exactly one table name')
+        self.query = Update(table)
+
+    def _set(self, raw_value):
+        raw_set_terms = re.split(r'\s*,\s*', raw_value)
+        update_dict = {}
+        for raw_term in raw_set_terms:
+            try:
+                groupdict = re.fullmatch(r"(?P<column>[A-Za-z0-9_]+)\s*=\s*(?P<value>.*)",
+                                         raw_term).groupdict()
+            except AttributeError:
+                raise QuerySyntaxError('wrong syntax in SET clause')
+            column, value = groupdict.values()
+            update_dict[column] = value
+        self.query.set(update_dict)
+
+
 def error_handling(func):
     @functools.wraps(func)
     def func_with_error_handling(*args, **kwargs):
@@ -115,7 +168,7 @@ def error_handling(func):
 
 
 class QueryRunner:
-    runners = (SelectQueryRunner,)
+    runners = (SelectQueryRunner, UpdateQueryRunner)
 
     @classmethod
     @error_handling
