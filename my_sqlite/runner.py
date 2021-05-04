@@ -7,7 +7,7 @@ from my_sqlite.conversion import converted
 from my_sqlite.error import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, BulkInsertError, \
     QuerySyntaxError
 from my_sqlite.operator import Operator
-from my_sqlite.query import Select, Update
+from my_sqlite.query import Select, Update, Delete
 
 
 def non_null_argument(func):
@@ -23,7 +23,7 @@ def non_null_argument(func):
 class AbstractSpecializedQueryRunner(ABC):
     not_word_neither_dot = r'[^.A-Za-z0-9_]+'
 
-    def __init__(self, *, query):
+    def __init__(self, *, query=None):
         self.query = query
 
     @staticmethod
@@ -36,6 +36,13 @@ class AbstractSpecializedQueryRunner(ABC):
     @abstractmethod
     def from_parts(cls, parts):
         pass
+
+    def _from(self, raw_value):
+        try:
+            [table] = re.split(self.not_word_neither_dot, raw_value)
+        except ValueError:
+            raise QuerySyntaxError('FROM clause expects exactly one table name')
+        self.query.from_(table)
 
     @non_null_argument
     def _where(self, raw_value):
@@ -71,13 +78,6 @@ class SelectQueryRunner(AbstractSpecializedQueryRunner):
         runner._order_by(parts.order_by)
         runner._limit(parts.limit)
         print(*('|'.join(entry) for entry in runner.query.run()), sep='\n')
-
-    def _from(self, raw_value):
-        try:
-            [table] = re.split(self.not_word_neither_dot, raw_value)
-        except ValueError:
-            raise QuerySyntaxError('FROM clause expects exactly one table name')
-        self.query.from_(table)
 
     @non_null_argument
     def _join(self, raw_join, raw_on):
@@ -126,7 +126,7 @@ class UpdateQueryRunner(AbstractSpecializedQueryRunner):
     QueryParts = collections.namedtuple('QueryParts', ['update', 'set', 'where'])
 
     def __init__(self):
-        super().__init__(query=None)
+        super().__init__()
 
     @classmethod
     def from_parts(cls, parts):
@@ -157,6 +157,21 @@ class UpdateQueryRunner(AbstractSpecializedQueryRunner):
         self.query.set(update_dict)
 
 
+class DeleteQueryRunner(AbstractSpecializedQueryRunner):
+    pattern = r'(?i:DELETE\s+FROM)\s+(?P<from_>.+?)(\s+(?i:WHERE)\s+(?P<where>.+?))?'
+    QueryParts = collections.namedtuple('QueryParts', ['from_', 'where'])
+
+    def __init__(self):
+        super().__init__(query=Delete())
+
+    @classmethod
+    def from_parts(cls, parts):
+        parts, runner = cls.QueryParts(**parts.groupdict()), cls()
+        runner._from(parts.from_)
+        runner._where(parts.where)
+        runner.query.run()
+
+
 def error_handling(func):
     @functools.wraps(func)
     def func_with_error_handling(*args, **kwargs):
@@ -168,7 +183,7 @@ def error_handling(func):
 
 
 class QueryRunner:
-    runners = (SelectQueryRunner, UpdateQueryRunner)
+    runners = (SelectQueryRunner, UpdateQueryRunner, DeleteQueryRunner)
 
     @classmethod
     @error_handling

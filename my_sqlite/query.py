@@ -46,11 +46,12 @@ class AbstractQuery(ABC):
 
     def _serialize_table(self, entries):
         header_map = next(iter(self.table_map.values())).header_map_case_preserved
-        return f"{self._sep.join(header_map)}{self._linesep}" + self._serialize_rows(entries)
+        return f"{self._sep.join(header_map)}{self._linesep}{self._serialize_rows(entries)}"
 
     @classmethod
     def _serialize_rows(cls, entries):
-        return f"{os.linesep.join(cls._sep.join(entry) for entry in entries)}{cls._linesep}"
+        serialized_rows = cls._linesep.join(cls._sep.join(entry) for entry in entries)
+        return f"{serialized_rows}{cls._linesep}" if serialized_rows else serialized_rows
 
     @classmethod
     def strip_and_split(cls, line):
