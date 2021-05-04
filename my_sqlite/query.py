@@ -176,7 +176,8 @@ class Insert(AbstractQuery):
         for row in self._inserted_rows:
             row_id = row[self._value_indices[0]]
             if row_id in existing_ids:
-                raise InsertError(f"a row already exists with id {row_id}; aborting the insert")
+                raise InsertError(f"attempting to store more than one record with id {row_id}; aborting the insert")
+            existing_ids.add(row_id)
             rows_to_insert.append(
                 [row[self._value_indices[i]] if i in self._value_indices else '' for i in range(row_len)])
         with open(table.path, 'a') as table_file:
