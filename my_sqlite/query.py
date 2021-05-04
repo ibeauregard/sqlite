@@ -38,19 +38,19 @@ class AbstractQuery(ABC):
                                       header_map_case_preserved={header: i for i, header in enumerate(headers)})
 
     @classmethod
-    def _parse_table(cls, file):
-        lines = file.read().split(cls._record_sep)
-        records = itertools.islice(lines, 1, None)  # skip header
-        return map(cls.strip_and_split, records)
+    def _parse_table(cls, table):
+        next(table)  # skip header
+        entries = list(map(cls.strip_and_split, table))
+        return entries
 
     def _serialize_table(self, entries):
         header_map = next(iter(self.table_map.values())).header_map_case_preserved
-        serialized_rows = self._serialize_rows(entries)
-        return f"{self._unit_sep.join(header_map)}{self._record_sep if serialized_rows else ''}{serialized_rows}"
+        return f"{self._unit_sep.join(header_map)}{self._record_sep}{self._serialize_rows(entries)}"
 
     @classmethod
     def _serialize_rows(cls, entries):
-        return cls._record_sep.join(cls._unit_sep.join(entry) for entry in entries)
+        serialized_rows = cls._record_sep.join(cls._unit_sep.join(entry) for entry in entries)
+        return f"{serialized_rows}{cls._record_sep if serialized_rows else ''}"
 
     @classmethod
     def strip_and_split(cls, line):
