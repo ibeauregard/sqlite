@@ -96,11 +96,11 @@ class SelectQueryRunner(AbstractSpecializedQueryRunner):
         ordering_terms = []
         for raw_term in raw_ordering_terms:
             try:
-                groupdict = re.fullmatch(r"(?P<column>[.A-Za-z0-9_]+)(\s+(?P<ascending>(?i:asc|desc)))?",
-                                         raw_term).groupdict()
+                group_dict = re.fullmatch(r"(?P<column>[.A-Za-z0-9_]+)(\s+(?P<ascending>(?i:asc|desc)))?",
+                                          raw_term).groupdict()
             except AttributeError:
                 raise QuerySyntaxError('wrong syntax in ORDER BY clause')
-            column, ascending = groupdict.values()
+            column, ascending = group_dict.values()
             ordering_terms.append((column, ascending is None or ascending == 'asc'))
         self.query.order_by(ordering_terms)
 
@@ -144,16 +144,11 @@ class UpdateQueryRunner(AbstractSpecializedQueryRunner):
         self.query = Update(table)
 
     def _set(self, raw_value):
-        raw_set_terms = re.split(r'\s*,\s*', raw_value)
-        update_dict = {}
-        for raw_term in raw_set_terms:
-            try:
-                groupdict = re.fullmatch(r"(?P<column>[A-Za-z0-9_]+)\s*=\s*(?P<value>.*)",
-                                         raw_term).groupdict()
-            except AttributeError:
-                raise QuerySyntaxError('wrong syntax in SET clause')
-            column, value = groupdict.values()
-            update_dict[column] = value
+        single_pair = re.compile(r'\s*(\w+)\s*=\s*"([^"]*)"\s*')
+        full_set = re.compile(single_pair.pattern + '(,' + single_pair.pattern + ')*')
+        if not full_set.fullmatch(raw_value):
+            raise QuerySyntaxError('wrong syntax in SET clause')
+        update_dict = dict(single_pair.findall(raw_value))
         self.query.set(update_dict)
 
 
@@ -203,8 +198,8 @@ class InsertQueryRunner(AbstractSpecializedQueryRunner):
 
     def _values(self, raw_content):
         single_set = re.compile(r'\s*"[^"]*"\s*(?:,\s*"[^"]*"\s*)*')
-        fullset = re.compile(r'\s*\(' + single_set.pattern + r'\)\s*(?:,\s*\(' + single_set.pattern + r'\)\s*)*')
-        if not fullset.fullmatch(raw_content):
+        full_set = re.compile(r'\s*\(' + single_set.pattern + r'\)\s*(?:,\s*\(' + single_set.pattern + r'\)\s*)*')
+        if not full_set.fullmatch(raw_content):
             raise QuerySyntaxError('wrong syntax in VALUES clause')
         rows = [[value.strip().strip('"') for value in row.split(',')]
                 for row in re.findall(r'(?<=\()' + single_set.pattern + r'(?=\))', raw_content)]
