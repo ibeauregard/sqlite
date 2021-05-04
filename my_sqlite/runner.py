@@ -201,7 +201,7 @@ class InsertQueryRunner(AbstractSpecializedQueryRunner):
         full_set = re.compile(r'\s*\(' + single_set.pattern + r'\)\s*(?:,\s*\(' + single_set.pattern + r'\)\s*)*')
         if not full_set.fullmatch(raw_content):
             raise QuerySyntaxError('wrong syntax in VALUES clause')
-        rows = [[value.strip().strip('"') for value in row.split(',')]
+        rows = [[value.strip('"') for value in re.findall(r'"[^"]*"', row)]
                 for row in re.findall(r'(?<=\()' + single_set.pattern + r'(?=\))', raw_content)]
         if len(set(map(len, rows))) > 1:
             raise InsertError('all VALUES must have the same number of terms')
