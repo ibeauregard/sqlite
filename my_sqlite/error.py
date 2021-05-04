@@ -30,7 +30,7 @@ class AmbiguousColumnNameError(ColumnError, Exception):
         return f'Error: ambiguous column name: {self.column}'
 
 
-class BulkInsertError(Exception):
+class InsertError(Exception):
     def __init__(self, message):
         super().__init__(message)
         self.message = message

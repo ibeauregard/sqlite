@@ -9,7 +9,7 @@ from pathlib import Path
 from config.config import Config
 from my_sqlite.conversion import converted
 from my_sqlite.error import NoSuchTableError, AmbiguousColumnNameError, NoSuchColumnError, translate_key_error, \
-    BulkInsertError
+    InsertError
 
 
 class AbstractQuery(ABC):
@@ -157,12 +157,12 @@ class Insert(AbstractQuery):
         else:
             self._value_indices = {table_header[column.lower()]: i for i, column in enumerate(columns)}
             if 0 not in self._value_indices:
-                raise BulkInsertError(f"the value of the column at index 0 must be specified")
+                raise InsertError(f"the value of the column at index 0 must be specified")
 
     def values(self, rows):
         row_len, num_columns = len(rows[0]), len(self._value_indices)
         if row_len != num_columns:
-            raise BulkInsertError(f"table {next(iter(self.table_map))} has {num_columns} columns "
+            raise InsertError(f"table {next(iter(self.table_map))} has {num_columns} columns "
                                   f"but {row_len} values were supplied")
         self._inserted_rows = rows
         return self
@@ -177,7 +177,7 @@ class Insert(AbstractQuery):
         for row in self._inserted_rows:
             row_id = row[self._value_indices[0]]
             if row_id in existing_ids:
-                raise BulkInsertError(f"a row already exists with id {row_id}; aborting the insert")
+                raise InsertError(f"a row already exists with id {row_id}; aborting the insert")
             rows_to_insert.append(
                 [row[self._value_indices[i]] if i in self._value_indices else '' for i in range(row_len)])
         with open(table.path, 'a') as table_file:

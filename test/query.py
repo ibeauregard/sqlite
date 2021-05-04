@@ -3,7 +3,7 @@ import os
 import shutil
 from timeit import default_timer
 
-from my_sqlite.error import BulkInsertError
+from my_sqlite.error import InsertError
 from my_sqlite.query import Delete, Insert, Select, Update
 from my_sqlite.operator import operator
 from my_sqlite.runner import error_handling
@@ -144,10 +144,11 @@ def run_test_suite():
         insert = insert.into(**into)
         if values is not None:
             if len(set(map(len, values))) > 1:
-                raise BulkInsertError('all VALUES must have the same number of terms')
-            if into['columns'] and any(len(row) != len(into['columns']) for row in values):
-                first_wrong_length = next(len(row) for row in values if len(row) != len(into['columns']))
-                raise BulkInsertError(f"{first_wrong_length} values for {len(into['columns'])} columns")
+                raise InsertError('all VALUES must have the same number of terms')
+            if into['columns']:
+                length_discrepancy = next((len(row) for row in values if len(row) != len(into['columns'])), None)
+                if length_discrepancy:
+                    raise InsertError(f"{length_discrepancy} values for {len(into['columns'])} columns")
             insert = insert.values(values)
             insert.run()
 

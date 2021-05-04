@@ -4,10 +4,10 @@ import re
 from abc import ABC, abstractmethod
 
 from my_sqlite.conversion import converted
-from my_sqlite.error import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, BulkInsertError, \
+from my_sqlite.error import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, InsertError, \
     QuerySyntaxError
 from my_sqlite.operator import Operator
-from my_sqlite.query import Select, Update, Delete
+from my_sqlite.query import Select, Update, Delete, Insert
 
 
 def non_null_argument(func):
@@ -21,7 +21,7 @@ def non_null_argument(func):
 
 
 class AbstractSpecializedQueryRunner(ABC):
-    not_word_neither_dot = r'[^.A-Za-z0-9_]+'
+    not_word_neither_dot = re.compile(r'[^.A-Za-z0-9_]+')
 
     def __init__(self, *, query=None):
         self.query = query
@@ -39,7 +39,7 @@ class AbstractSpecializedQueryRunner(ABC):
 
     def _from(self, raw_value):
         try:
-            [table] = re.split(self.not_word_neither_dot, raw_value)
+            [table] = self.not_word_neither_dot.split(raw_value)
         except ValueError:
             raise QuerySyntaxError('FROM clause expects exactly one table name')
         self.query.from_(table)
@@ -48,7 +48,7 @@ class AbstractSpecializedQueryRunner(ABC):
     def _where(self, raw_value):
         try:
             column, operator, input_value = (token.strip() for token in re.split(r'(<=|<|=|!=|>=|>)', raw_value))
-            [column] = re.split(self.not_word_neither_dot, column)
+            [column] = self.not_word_neither_dot.split(column)
         except ValueError:
             raise QuerySyntaxError('WHERE clause syntax expected to be <column> <operator> <value>, '
                                    'where <operator> is one of <, <=, =, !=, >=, >')
@@ -57,12 +57,12 @@ class AbstractSpecializedQueryRunner(ABC):
 
 
 class SelectQueryRunner(AbstractSpecializedQueryRunner):
-    pattern = r'(?i:SELECT)\s+(?P<select>.+)' \
-              r'\s+(?i:FROM)\s+(?P<from_>.+?)' \
-              r'(\s+(?i:JOIN)\s+(?P<join>.+?)(\s+(?i:ON)\s+(?P<on>.+?))?)?' \
-              r'(\s+(?i:WHERE)\s+(?P<where>.+?))?' \
-              r'(\s+(?i:ORDER\s+BY)\s+(?P<order_by>.+?))?' \
-              r'(\s+(?i:LIMIT)\s+(?P<limit>.+?))?'
+    pattern = re.compile(r'(?i:SELECT)\s+(?P<select>.+)'
+                         r'\s+(?i:FROM)\s+(?P<from_>.+?)'
+                         r'(\s+(?i:JOIN)\s+(?P<join>.+?)(\s+(?i:ON)\s+(?P<on>.+?))?)?'
+                         r'(\s+(?i:WHERE)\s+(?P<where>.+?))?'
+                         r'(\s+(?i:ORDER\s+BY)\s+(?P<order_by>.+?))?'
+                         r'(\s+(?i:LIMIT)\s+(?P<limit>.+?))?')
     QueryParts = collections.namedtuple('QueryParts', ['select', 'from_', 'join', 'on', 'where', 'order_by', 'limit'])
 
     def __init__(self):
@@ -82,7 +82,7 @@ class SelectQueryRunner(AbstractSpecializedQueryRunner):
     @non_null_argument
     def _join(self, raw_join, raw_on):
         try:
-            [table] = re.split(self.not_word_neither_dot, raw_join)
+            [table] = self.not_word_neither_dot.split(raw_join)
         except ValueError:
             raise QuerySyntaxError('JOIN clause expects exactly one table name')
         self.query.join(table, on=self._get_on_keys(raw_on))
@@ -114,7 +114,7 @@ class SelectQueryRunner(AbstractSpecializedQueryRunner):
     @non_null_argument
     def _get_on_keys(self, raw_value):
         try:
-            [on_left], [on_right] = (re.split(self.not_word_neither_dot, key)
+            [on_left], [on_right] = (self.not_word_neither_dot.split(key)
                                      for key in re.split(r'\s*=\s*', raw_value))
         except ValueError:
             raise QuerySyntaxError('ON clause syntax expected to be <column_1> = <column_2>')
@@ -122,7 +122,7 @@ class SelectQueryRunner(AbstractSpecializedQueryRunner):
 
 
 class UpdateQueryRunner(AbstractSpecializedQueryRunner):
-    pattern = r'(?i:UPDATE)\s+(?P<update>.+)\s+(?i:SET)\s+(?P<set>.+?)(\s+(?i:WHERE)\s+(?P<where>.+?))?'
+    pattern = re.compile(r'(?i:UPDATE)\s+(?P<update>.+)\s+(?i:SET)\s+(?P<set>.+?)(\s+(?i:WHERE)\s+(?P<where>.+?))?')
     QueryParts = collections.namedtuple('QueryParts', ['update', 'set', 'where'])
 
     def __init__(self):
@@ -138,7 +138,7 @@ class UpdateQueryRunner(AbstractSpecializedQueryRunner):
 
     def _update(self, raw_value):
         try:
-            [table] = re.split(self.not_word_neither_dot, raw_value)
+            [table] = self.not_word_neither_dot.split(raw_value)
         except ValueError:
             raise QuerySyntaxError('UPDATE expects exactly one table name')
         self.query = Update(table)
@@ -158,7 +158,7 @@ class UpdateQueryRunner(AbstractSpecializedQueryRunner):
 
 
 class DeleteQueryRunner(AbstractSpecializedQueryRunner):
-    pattern = r'(?i:DELETE\s+FROM)\s+(?P<from_>.+?)(\s+(?i:WHERE)\s+(?P<where>.+?))?'
+    pattern = re.compile(r'(?i:DELETE\s+FROM)\s+(?P<from_>.+?)(\s+(?i:WHERE)\s+(?P<where>.+?))?')
     QueryParts = collections.namedtuple('QueryParts', ['from_', 'where'])
 
     def __init__(self):
@@ -172,18 +172,64 @@ class DeleteQueryRunner(AbstractSpecializedQueryRunner):
         runner.query.run()
 
 
+class InsertQueryRunner(AbstractSpecializedQueryRunner):
+    pattern = re.compile(r'(?i:INSERT\s+INTO)\s+(?P<into>.+?)'
+                         r'(\s+(\((?P<columns>.+)\)))?'
+                         r'(\s+(?i:VALUES)\s+(?P<values>.+))')
+    QueryParts = collections.namedtuple('QueryParts', ['into', 'columns', 'values'])
+
+    def __init__(self):
+        super().__init__(query=Insert())
+        self._columns = None
+
+    @classmethod
+    def from_parts(cls, parts):
+        parts, runner = cls.QueryParts(**parts.groupdict()), cls()
+        runner._process_columns(parts.columns)
+        runner._into(parts.into)
+        runner._values(parts.values)
+        runner.query.run()
+
+    def _into(self, raw_into):
+        try:
+            [table] = self.not_word_neither_dot.split(raw_into)
+        except ValueError:
+            raise QuerySyntaxError('UPDATE expects exactly one table name')
+        self.query.into(table, columns=self._columns)
+
+    @non_null_argument
+    def _process_columns(self, raw_columns):
+        self._columns = tuple(filter(None, re.split(r'\s*,\s*', raw_columns)))
+
+    def _values(self, raw_content):
+        single_set = re.compile(r'\s*"[^"]*"\s*(?:,\s*"[^"]*"\s*)*')
+        fullset = re.compile(r'\s*\(' + single_set.pattern + r'\)\s*(?:,\s*\(' + single_set.pattern + r'\)\s*)*')
+        if not fullset.fullmatch(raw_content):
+            raise QuerySyntaxError('wrong syntax in VALUES clause')
+        rows = [[value.strip().strip('"') for value in row.split(',')]
+                for row in re.findall(r'(?<=\()' + single_set.pattern + r'(?=\))', raw_content)]
+        if len(set(map(len, rows))) > 1:
+            raise InsertError('all VALUES must have the same number of terms')
+        if self._columns:
+            length_discrepancy = next((len(row) for row in rows if len(row) != len(self._columns)), None)
+            if length_discrepancy:
+                raise InsertError(f"{length_discrepancy} values for {len(self._columns)} columns")
+        self.query.values(rows)
+
+
 def error_handling(func):
     @functools.wraps(func)
     def func_with_error_handling(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except (NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, BulkInsertError, QuerySyntaxError) as e:
+        except (NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, InsertError, QuerySyntaxError) as e:
             print(e)
+
     return func_with_error_handling
 
 
 class QueryRunner:
-    runners = (SelectQueryRunner, UpdateQueryRunner, DeleteQueryRunner)
+    runners = (SelectQueryRunner, UpdateQueryRunner, DeleteQueryRunner, InsertQueryRunner)
 
     @classmethod
     @error_handling
@@ -194,5 +240,5 @@ class QueryRunner:
                 SpecializedQueryRunner = next(runners)
             except StopIteration:
                 raise QuerySyntaxError('input matches no known query')
-            parts = re.fullmatch(SpecializedQueryRunner.pattern, query_text)
+            parts = SpecializedQueryRunner.pattern.fullmatch(query_text)
         SpecializedQueryRunner.from_parts(parts)
