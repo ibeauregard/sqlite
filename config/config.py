@@ -7,4 +7,4 @@ class Config:
     except IndexError:
         sys.exit('my_sqlite: Missing argument: path to the database')
     table_filename_extension = '.csv'
-    column_separator = ','
+    column_separator = ''

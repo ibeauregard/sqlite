@@ -55,7 +55,7 @@ class AbstractQuery(ABC):
 
     @classmethod
     def strip_and_split(cls, line):
-        return line.strip().split(cls._sep)
+        return line.strip(cls._linesep).split(cls._sep)
 
     def get_tables_in_query_order(self):
         return sorted(self.table_map.values(), key=lambda t: t.index)
