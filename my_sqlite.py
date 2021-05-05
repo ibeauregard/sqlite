@@ -17,5 +17,6 @@ if __name__ == '__main__':
                 lines.append(line)
             for query in queries_from_input_lines(lines):
                 QueryRunner.execute(decoded(query))
+                print()
     except EOFError:
         sys.exit()

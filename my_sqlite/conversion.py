@@ -10,7 +10,7 @@ def converted(value):
             pass
 
 
-# See https://stackoverflow.com/a/37059682/2237433.
+# See https://stackoverflow.com/a/37059682/2237433
 # Leaving \" encoded
 def decoded(string):
     return codecs.escape_decode(bytes(string.replace(r'\"', r'\\"'), "utf-8"))[0].decode("utf-8")
