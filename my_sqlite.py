@@ -1,5 +1,6 @@
 import sys
 
+from my_sqlite.conversion import decoded, queries_from_input_lines
 from my_sqlite.runner import QueryRunner
 
 if __name__ == '__main__':
@@ -14,7 +15,7 @@ if __name__ == '__main__':
                 print('      ...>', end=' ')
                 line = input().strip()
                 lines.append(line)
-            for query in filter(None, map(str.strip, ' '.join(lines).split(';'))):
-                QueryRunner.execute(query)
+            for query in queries_from_input_lines(lines):
+                QueryRunner.execute(decoded(query))
     except EOFError:
         sys.exit()
