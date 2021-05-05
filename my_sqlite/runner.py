@@ -21,8 +21,6 @@ def non_null_argument(func):
 
 
 class AbstractSpecializedQueryRunner(ABC):
-    not_word_neither_dot = re.compile(r'[^.A-Za-z0-9_]+')
-
     def __init__(self, *, query=None):
         self.query = query
 
@@ -39,20 +37,20 @@ class AbstractSpecializedQueryRunner(ABC):
 
     def _from(self, raw_value):
         try:
-            [table] = self.not_word_neither_dot.split(raw_value)
-        except ValueError:
+            table = re.fullmatch(r'[\w.]+', raw_value).group()
+        except AttributeError:
             raise QuerySyntaxError('FROM clause expects exactly one table name')
         self.query.from_(table)
 
     @non_null_argument
     def _where(self, raw_value):
+        pattern = re.compile(r'([\w.]+)\s*(<=|<|=|!=|>=|>)\s*(?<=[^\\])"((?:\\"|[^"])*)(?<=[^\\])"\s*')
         try:
-            column, operator, input_value = (token.strip() for token in re.split(r'(<=|<|=|!=|>=|>)', raw_value))
-            [column] = self.not_word_neither_dot.split(column)
-        except ValueError:
-            raise QuerySyntaxError('WHERE clause syntax expected to be <column> <operator> <value>, '
+            column, operator, input_value = pattern.fullmatch(raw_value).groups()
+        except AttributeError:
+            raise QuerySyntaxError('WHERE clause syntax expected to be <column> <operator> "<value>", '
                                    'where <operator> is one of <, <=, =, !=, >=, >')
-        operator, input_value = Operator.from_symbol(operator), converted(input_value.strip('\'\"'))
+        operator, input_value = Operator.from_symbol(operator), converted(input_value.replace(r'\"', '"'))
         self.query.where(column, condition=lambda value: operator(value, input_value))
 
 
@@ -60,30 +58,30 @@ class SelectQueryRunner(AbstractSpecializedQueryRunner):
     pattern = re.compile(r'(?i:SELECT)\s+(?P<select>.+)'
                          r'\s+(?i:FROM)\s+(?P<from_>.+?)'
                          r'(\s+(?i:JOIN)\s+(?P<join>.+?)(\s+(?i:ON)\s+(?P<on>.+?))?)?'
-                         r'(\s+(?i:WHERE)\s+(?P<where>.+?))?'
+                         r'(\s+(?i:WHERE)\s+(?P<where>[\s\S]+?))?'
                          r'(\s+(?i:ORDER\s+BY)\s+(?P<order_by>.+?))?'
                          r'(\s+(?i:LIMIT)\s+(?P<limit>.+?))?')
-    QueryParts = collections.namedtuple('QueryParts', ['select', 'from_', 'join', 'on', 'where', 'order_by', 'limit'])
 
     def __init__(self):
         super().__init__(query=Select())
 
     @classmethod
     def from_parts(cls, parts):
-        parts, runner = cls.QueryParts(**parts.groupdict()), cls()
-        runner._from(parts.from_)
-        runner._join(parts.join, parts.on)
-        runner._where(parts.where)
-        runner._select(parts.select)
-        runner._order_by(parts.order_by)
-        runner._limit(parts.limit)
+        select, from_, join, on, where, order_by, limit = parts.groupdict().values()
+        runner = cls()
+        runner._from(from_)
+        runner._join(join, on)
+        runner._where(where)
+        runner._select(select)
+        runner._order_by(order_by)
+        runner._limit(limit)
         print(*('|'.join(entry) for entry in runner.query.run()), sep='\n')
 
     @non_null_argument
     def _join(self, raw_join, raw_on):
         try:
-            [table] = self.not_word_neither_dot.split(raw_join)
-        except ValueError:
+            table = re.fullmatch(r'[\w.]+', raw_join).group()
+        except AttributeError:
             raise QuerySyntaxError('JOIN clause expects exactly one table name')
         self.query.join(table, on=self._get_on_keys(raw_on))
 
@@ -96,12 +94,11 @@ class SelectQueryRunner(AbstractSpecializedQueryRunner):
         ordering_terms = []
         for raw_term in raw_ordering_terms:
             try:
-                group_dict = re.fullmatch(r"(?P<column>[.A-Za-z0-9_]+)(\s+(?P<ascending>(?i:asc|desc)))?",
-                                          raw_term).groupdict()
+                column, ascending = re.fullmatch(r"(?P<column>[\w.]+)(\s+(?P<ascending>(?i:asc|desc)))?",
+                                                 raw_term).groupdict().values()
             except AttributeError:
                 raise QuerySyntaxError('wrong syntax in ORDER BY clause')
-            column, ascending = group_dict.values()
-            ordering_terms.append((column, ascending is None or ascending == 'asc'))
+            ordering_terms.append((column, ascending is None or ascending.lower() == 'asc'))
         self.query.order_by(ordering_terms)
 
     @non_null_argument
@@ -114,63 +111,63 @@ class SelectQueryRunner(AbstractSpecializedQueryRunner):
     @non_null_argument
     def _get_on_keys(self, raw_value):
         try:
-            [on_left], [on_right] = (self.not_word_neither_dot.split(key)
-                                     for key in re.split(r'\s*=\s*', raw_value))
-        except ValueError:
+            on_left, on_right = re.fullmatch(r'([\w.]+)\s*=\s*([\w.]+)\s*', raw_value).groups()
+        except AttributeError:
             raise QuerySyntaxError('ON clause syntax expected to be <column_1> = <column_2>')
         return on_left, on_right
 
 
 class UpdateQueryRunner(AbstractSpecializedQueryRunner):
-    pattern = re.compile(r'(?i:UPDATE)\s+(?P<update>.+)\s+(?i:SET)\s+(?P<set>.+?)(\s+(?i:WHERE)\s+(?P<where>.+?))?')
-    QueryParts = collections.namedtuple('QueryParts', ['update', 'set', 'where'])
+    pattern = re.compile(
+        r'(?i:UPDATE)\s+(?P<update>.+)\s+(?i:SET)\s+(?P<set_>[\s\S]+?)(\s+(?i:WHERE)\s+(?P<where>[\s\S]+?))?')
 
     def __init__(self):
         super().__init__()
 
     @classmethod
     def from_parts(cls, parts):
-        parts, runner = cls.QueryParts(**parts.groupdict()), cls()
-        runner._update(parts.update)
-        runner._set(parts.set)
-        runner._where(parts.where)
+        update, set_, where = parts.groupdict().values()
+        runner = cls()
+        runner._update(update)
+        runner._set(set_)
+        runner._where(where)
         runner.query.run()
 
     def _update(self, raw_value):
         try:
-            [table] = self.not_word_neither_dot.split(raw_value)
-        except ValueError:
+            table = re.fullmatch(r'[\w.]+', raw_value).group()
+        except AttributeError:
             raise QuerySyntaxError('UPDATE expects exactly one table name')
         self.query = Update(table)
 
     def _set(self, raw_value):
-        single_pair = re.compile(r'\s*(\w+)\s*=\s*"([^"]*)"\s*')
+        single_pair = re.compile(r'\s*(\w+)\s*=\s*(?<=[^\\])"((?:\\"|[^"])*)(?<=[^\\])"\s*')
         full_set = re.compile(single_pair.pattern + '(,' + single_pair.pattern + ')*')
         if not full_set.fullmatch(raw_value):
             raise QuerySyntaxError('wrong syntax in SET clause')
-        update_dict = dict(single_pair.findall(raw_value))
+        update_dict = {column: value.replace(r'\"', '"') for column, value in single_pair.findall(raw_value)}
         self.query.set(update_dict)
 
 
 class DeleteQueryRunner(AbstractSpecializedQueryRunner):
-    pattern = re.compile(r'(?i:DELETE\s+FROM)\s+(?P<from_>.+?)(\s+(?i:WHERE)\s+(?P<where>.+?))?')
-    QueryParts = collections.namedtuple('QueryParts', ['from_', 'where'])
+    pattern = re.compile(r'(?i:DELETE\s+FROM)\s+(?P<from_>.+?)(\s+(?i:WHERE)\s+(?P<where>[\s\S]+?))?')
 
     def __init__(self):
         super().__init__(query=Delete())
 
     @classmethod
     def from_parts(cls, parts):
-        parts, runner = cls.QueryParts(**parts.groupdict()), cls()
-        runner._from(parts.from_)
-        runner._where(parts.where)
+        from_, where = parts.groupdict().values()
+        runner = cls()
+        runner._from(from_)
+        runner._where(where)
         runner.query.run()
 
 
 class InsertQueryRunner(AbstractSpecializedQueryRunner):
     pattern = re.compile(r'(?i:INSERT\s+INTO)\s+(?P<into>.+?)'
                          r'(\s+(\((?P<columns>.+)\)))?'
-                         r'(\s+(?i:VALUES)\s+(?P<values>.+))')
+                         r'(\s+(?i:VALUES)\s+(?P<values>[\s\S]+))')
     QueryParts = collections.namedtuple('QueryParts', ['into', 'columns', 'values'])
 
     def __init__(self):
@@ -179,16 +176,17 @@ class InsertQueryRunner(AbstractSpecializedQueryRunner):
 
     @classmethod
     def from_parts(cls, parts):
-        parts, runner = cls.QueryParts(**parts.groupdict()), cls()
-        runner._process_columns(parts.columns)
-        runner._into(parts.into)
-        runner._values(parts.values)
+        into, columns, values = parts.groupdict().values()
+        runner = cls()
+        runner._process_columns(columns)
+        runner._into(into)
+        runner._values(values)
         runner.query.run()
 
     def _into(self, raw_into):
         try:
-            [table] = self.not_word_neither_dot.split(raw_into)
-        except ValueError:
+            table = re.fullmatch(r'[\w.]+', raw_into).group()
+        except AttributeError:
             raise QuerySyntaxError('UPDATE expects exactly one table name')
         self.query.into(table, columns=self._columns)
 
@@ -197,12 +195,13 @@ class InsertQueryRunner(AbstractSpecializedQueryRunner):
         self._columns = tuple(filter(None, re.split(r'\s*,\s*', raw_columns)))
 
     def _values(self, raw_content):
-        single_set = re.compile(r'\s*"[^"]*"\s*(?:,\s*"[^"]*"\s*)*')
-        full_set = re.compile(r'\s*\(' + single_set.pattern + r'\)\s*(?:,\s*\(' + single_set.pattern + r'\)\s*)*')
+        single_set = re.compile(
+            r'\s*\(\s*(?<=[^\\])"(?:\\"|[^"])*(?<=[^\\])"\s*(?:,\s*(?<=[^\\])"(?:\\"|[^"])*(?<=[^\\])"\s*)*\)\s*')
+        full_set = re.compile(single_set.pattern + r'(?:,' + single_set.pattern + r')*')
         if not full_set.fullmatch(raw_content):
             raise QuerySyntaxError('wrong syntax in VALUES clause')
-        rows = [[value.strip('"') for value in re.findall(r'"[^"]*"', row)]
-                for row in re.findall(r'(?<=\()' + single_set.pattern + r'(?=\))', raw_content)]
+        rows = [[value.replace(r'\"', '"') for value in re.findall(r'(?<=[^\\])"((?:\\"|[^"])*)(?<=[^\\])"', row)]
+                for row in single_set.findall(raw_content)]
         if len(set(map(len, rows))) > 1:
             raise InsertError('all VALUES must have the same number of terms')
         if self._columns:
