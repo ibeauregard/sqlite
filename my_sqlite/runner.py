@@ -141,6 +141,7 @@ class UpdateQueryRunner(AbstractSpecializedQueryRunner):
         self.query = Update(table)
 
     def _set(self, raw_value):
+        # Matches one 'column = "value"' pair
         single_pair = re.compile(r'\s*(\w+)\s*=\s*(?<=[^\\])"((?:\\"|[^"])*)(?<=[^\\])"\s*')
         full_set = re.compile(single_pair.pattern + '(,' + single_pair.pattern + ')*')
         if not full_set.fullmatch(raw_value):
@@ -195,9 +196,10 @@ class InsertQueryRunner(AbstractSpecializedQueryRunner):
         self._columns = tuple(filter(None, re.split(r'\s*,\s*', raw_columns)))
 
     def _values(self, raw_content):
+        # Matches one '("value1", "value2", ...)' set
         single_set = re.compile(
             r'\s*\(\s*(?<=[^\\])"(?:\\"|[^"])*(?<=[^\\])"\s*(?:,\s*(?<=[^\\])"(?:\\"|[^"])*(?<=[^\\])"\s*)*\)\s*')
-        full_set = re.compile(single_set.pattern + r'(?:,' + single_set.pattern + r')*')
+        full_set = re.compile(single_set.pattern + '(?:,' + single_set.pattern + ')*')
         if not full_set.fullmatch(raw_content):
             raise QuerySyntaxError('wrong syntax in VALUES clause')
         rows = [[value.replace(r'\"', '"') for value in re.findall(r'(?<=[^\\])"((?:\\"|[^"])*)(?<=[^\\])"', row)]
