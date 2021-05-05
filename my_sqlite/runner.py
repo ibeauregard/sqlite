@@ -1,4 +1,3 @@
-import collections
 import functools
 import re
 from abc import ABC, abstractmethod
@@ -169,7 +168,6 @@ class InsertQueryRunner(AbstractSpecializedQueryRunner):
     pattern = re.compile(r'(?i:INSERT\s+INTO)\s+(?P<into>.+?)'
                          r'(\s+(\((?P<columns>.+)\)))?'
                          r'(\s+(?i:VALUES)\s+(?P<values>[\s\S]+))')
-    QueryParts = collections.namedtuple('QueryParts', ['into', 'columns', 'values'])
 
     def __init__(self):
         super().__init__(query=Insert())
