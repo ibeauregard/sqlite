@@ -25,18 +25,19 @@ def run_test_suite():
     @display_time
     @error_handling
     def select(columns, *, from_, join=None, where=None, order_by=None, limit=None):
-        query = Select().from_(from_)
+        query = Select()
+        query.from_(from_)
         if join is not None:
-            query = query.join(join[0], on=join[1])
+            query.join(join[0], on=join[1])
         if where is not None:
-            query = query.where(where[0], condition=lambda value: where[1][0](value, where[1][1]))
+            query.where(where[0], condition=lambda value: where[1][0](value, where[1][1]))
         if columns is not None:
-            query = query.select(columns)
+            query.select(columns)
         if order_by is not None:
-            query = query.order_by(order_by)
+            query.order_by(order_by)
         if limit is not None:
-            query = query.limit(limit)
-        print(*('|'.join(entry) for entry in query.run()), sep='\n')
+            query.limit(limit)
+        query.run()
 
     select(('nAmEfIrSt', 'nAmElAsT', 'yeariD', 'batting.hR'),
            from_='players',
@@ -109,9 +110,10 @@ def run_test_suite():
     @display_time
     @error_handling
     def update(table, *, set, where=None):
-        query = Update(table).set(set)
+        query = Update(table)
+        query.set(set)
         if where is not None:
-            query = query.where(where[0], condition=lambda value: where[1][0](value, where[1][1]))
+            query.where(where[0], condition=lambda value: where[1][0](value, where[1][1]))
         query.run()
 
     update('Roger', set={}, where=('roger', (operator.eq, True)))
@@ -125,9 +127,10 @@ def run_test_suite():
     @display_time
     @error_handling
     def delete(*, from_, where=None):
-        query = Delete().from_(from_)
+        query = Delete()
+        query.from_(from_)
         if where is not None:
-            query = query.where(where[0], condition=lambda value: where[1][0](value, where[1][1]))
+            query.where(where[0], condition=lambda value: where[1][0](value, where[1][1]))
         query.run()
 
     delete(from_='Roger')
@@ -140,8 +143,8 @@ def run_test_suite():
     @display_time
     @error_handling
     def insert(*, into, values):
-        insert = Insert()
-        insert = insert.into(**into)
+        query = Insert()
+        query.into(**into)
         if values is not None:
             if len(set(map(len, values))) > 1:
                 raise InsertError('all VALUES must have the same number of terms')
@@ -149,8 +152,8 @@ def run_test_suite():
                 length_discrepancy = next((len(row) for row in values if len(row) != len(into['columns'])), None)
                 if length_discrepancy:
                     raise InsertError(f"{length_discrepancy} values for {len(into['columns'])} columns")
-            insert = insert.values(values)
-            insert.run()
+            query.values(values)
+            query.run()
 
     insert(into={'table': 'Roger', 'columns': None},
            values=None)
