@@ -153,7 +153,7 @@ class Insert(AbstractQuery):
         else:
             self._value_indices = {table_header[column.lower()]: i for i, column in enumerate(columns)}
             if 0 not in self._value_indices:
-                raise InsertError(f"the value of the column at index 0 must be specified")
+                raise InsertError("the value of the column at index 0 must be specified")
 
     def values(self, rows):
         row_len, num_columns = len(rows[0]), len(self._value_indices)

@@ -203,7 +203,7 @@ class InsertQueryBuilder(AbstractQueryBuilder):
         try:
             table = re.fullmatch(r'[\w.]+', raw_into).group()
         except AttributeError:
-            raise QuerySyntaxError('UPDATE expects exactly one table name')
+            raise QuerySyntaxError('INSERT expects exactly one table name')
         self.query.into(table, columns=self._columns)
 
     @return_self

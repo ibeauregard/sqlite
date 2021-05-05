@@ -118,7 +118,7 @@ def run_test_suite():
 
     update('Roger', set={}, where=('roger', (operator.eq, True)))
     update('players', set={}, where=('roger', (operator.eq, True)))
-    update('players', set={'roger': 'cyr'}, where=None)
+    update('players', set={'roger': 'sawyer'}, where=None)
     update('players', set={'bIrThCoUnTrY': 'USofA'}, where=('bIrThCoUnTrY', (operator.eq, 'USA')))
     update('players', set={'bIrThCoUnTrY': 'USA'}, where=('bIrThCoUnTrY', (operator.eq, 'USofA')))
 
@@ -135,7 +135,7 @@ def run_test_suite():
 
     delete(from_='Roger')
     delete(from_='players', where=('roger', (1, 2)))
-    delete(from_='players', where=('nAmEgIvEn', (operator.eq, 'Roger Cyr')))
+    delete(from_='players', where=('nAmEgIvEn', (operator.eq, 'Roger Sawyer')))
     delete(from_='players', where=('bIrThCoUnTrY', (operator.eq, 'USA')))
 
     # Insert
@@ -177,10 +177,10 @@ def run_test_suite():
            values=((1, 2),))
 
     insert(into={'table': 'players', 'columns': ('nAmEfIrSt', 'nAmElAsT')},
-           values=(('Roger', 'Cyr'), ('Eric', 'Pickup')))
+           values=(('Roger', 'Sawyer'), ('Eric', 'Minivan')))
 
     insert(into={'table': 'players', 'columns': ('iD', 'nAmEfIrSt', 'nAmElAsT')},
-           values=(('999', 'Roger', 'Cyr'), ('9999', 'Eric', 'Pickup')))
+           values=(('999', 'Roger', 'Sawyer'), ('9999', 'Eric', 'Minivan')))
 
 
 if __name__ == '__main__':

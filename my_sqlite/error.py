@@ -36,7 +36,7 @@ class InsertError(Exception):
         self.message = message
 
     def __str__(self):
-        return f'Error: {self.message}'
+        return f'Error: {self.message}: insert error'
 
 
 class QuerySyntaxError(Exception):
