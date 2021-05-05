@@ -11,5 +11,5 @@ class Config:
     # ASCII 31 (0x1F) Unit Separator - Used to indicate separation between units within a record.
     unit_separator = chr(31)
 
-    #  See https://docs.python.org/3/library/os.html?highlight=linesep#os.linesep
-    record_separator = '\n'
+    # ASCII 30 (0x1E) Record Separator - Used to indicate separation between records within a table (within a group).
+    record_separator = chr(30)
