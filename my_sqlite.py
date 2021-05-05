@@ -8,6 +8,7 @@ if __name__ == '__main__':
     print('To exit the application, use CTRL + D.\n')
     try:
         while True:
+            print(f'[{sys.argv[1]}]')
             lines, line = [], ''
             while not line or set(line) == {';'}:
                 print('my_sqlite>', end=' ')
