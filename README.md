@@ -5,6 +5,11 @@
 ## Running my_sqlite
 
 ### Table format assumptions
+- header defines the schema
+- no types
+- conversion for the user input and for the table values
+- one unit separator; one record separator
+- in each table, the values stored in the 0-th column are unique
 
 ## The SELECT statement
 
