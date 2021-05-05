@@ -48,8 +48,8 @@ class AbstractSpecializedQueryRunner(ABC):
         try:
             column, operator, input_value = pattern.fullmatch(raw_value).groups()
         except AttributeError:
-            raise QuerySyntaxError('WHERE clause syntax expected to be <column> <operator> "<value>", '
-                                   'where <operator> is one of <, <=, =, !=, >=, >')
+            raise QuerySyntaxError('WHERE clause syntax expected to be <column> <operator> "<value>",\n'
+                                   '       where <operator> is one of <, <=, =, !=, >=, >')
         operator, input_value = Operator.from_symbol(operator), converted(input_value.replace(r'\"', '"'))
         self.query.where(column, condition=lambda value: operator(value, input_value))
 
