@@ -1,0 +1,96 @@
+@startuml
+
+abstract class AbstractQuery {
+    {abstract} + run()
+}
+
+abstract class FilteredQuery {
+    + where()
+}
+
+class Select {
+    + select()
+    + from()
+    + join()
+    + order_by()
+    + limit()
+    + run()
+}
+
+class Update {
+    + run()
+}
+
+class Delete {
+    + from()
+    + run()
+}
+
+class Insert {
+    + into()
+    + values()
+    + run()
+}
+
+abstract class AbstractQueryBuilder {
+    - AbstractQuery query
+    + {abstract} {static} String pattern
+    + {abstract} {static} from_parts()
+    ~ from()
+    ~ where()
+}
+
+class SelectQueryBuilder {
+    - Select query
+    + {static} String pattern
+    + {static} from_parts()
+    - select()
+    - join()
+    - order_by()
+    - limit()
+}
+
+class UpdateQueryBuilder {
+    - Update query
+    + {static} String pattern
+    + {static} from_parts()
+    - update()
+    - set()
+}
+
+class DeleteQueryBuilder {
+    - Delete query
+    + {static} String pattern
+    + {static} from_parts()
+}
+
+class InsertQueryBuilder {
+    - Insert query
+    + {static} String pattern
+    + {static} from_parts()
+    - into()
+    - columns()
+    - values()
+}
+
+class QueryRunner {
+    + {static} execute()
+}
+
+FilteredQuery -up-|> AbstractQuery
+Select -up-|> FilteredQuery
+Update -up-|> FilteredQuery
+Delete -up-|> FilteredQuery
+Insert -up-|> AbstractQuery
+SelectQueryBuilder -up-* Select
+UpdateQueryBuilder -up-* Update
+DeleteQueryBuilder -up-* Delete
+InsertQueryBuilder -up-* Insert
+SelectQueryBuilder -up-|> AbstractQueryBuilder
+UpdateQueryBuilder -up-|> AbstractQueryBuilder
+DeleteQueryBuilder -up-|> AbstractQueryBuilder
+InsertQueryBuilder -up-|> AbstractQueryBuilder
+QueryRunner -up-> AbstractQueryBuilder
+QueryRunner -up-> AbstractQuery
+
+@enduml

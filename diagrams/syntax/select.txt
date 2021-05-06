@@ -1,0 +1,13 @@
+SELECT  ::= 'SELECT' result_column (',' result_column)* 'FROM' table_name ('JOIN' table_name ('ON' column_name '=' column_name)?)? ('WHERE' column_name ('<='|'<'|'='|'!='|'>='|'>') value)? ('ORDER BY' ordering_term (',' ordering_term)*)? ('LIMIT' [0-9]+)?
+
+result_column ::= column_name | (table_name '.')? '*'
+
+table_name ::= name
+
+column_name ::= (table_name '.')? name
+
+name ::= [A-Za-z0-9_]+
+
+value ::= '"'[^"]*'"'
+
+ordering_term ::= column_name (ASC | DESC)?

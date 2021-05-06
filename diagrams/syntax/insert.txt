@@ -1,0 +1,9 @@
+INSERT  ::= 'INSERT INTO' table_name ('('column_name (',' column_name)*')')? VALUES '('value (',' value)*')' (',' '('value (',' value)*')')*
+
+table_name ::= name
+
+column_name ::= (table_name '.')? name
+
+name ::= [A-Za-z0-9_]+
+
+value ::= '"'[^"]*'"'

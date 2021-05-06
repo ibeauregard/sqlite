@@ -1,0 +1,9 @@
+DELETE  ::= 'DELETE FROM' table_name ('WHERE' column_name ('<='|'<'|'='|'!='|'>='|'>') value)?
+
+table_name ::= name
+
+column_name ::= (table_name '.')? name
+
+name ::= [A-Za-z0-9_]+
+
+value ::= '"'[^"]*'"'
