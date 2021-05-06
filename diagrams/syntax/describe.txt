@@ -1,0 +1,4 @@
+DESCRIBE  ::= 'DESCRIBE' table_name
+
+
+table_name ::= [A-Za-z0-9_]+

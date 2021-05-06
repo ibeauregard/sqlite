@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from my_sqlite.conversion import converted
 from my_sqlite.error import QuerySyntaxError, InsertError
 from my_sqlite.operator import Operator
-from my_sqlite.query import Select, Update, Delete, Insert
+from my_sqlite.query import Select, Update, Delete, Insert, Describe
 
 
 def return_self(method):
@@ -61,6 +61,22 @@ class AbstractQueryBuilder(ABC):
                                    '       where <operator> is one of <, <=, =, !=, >=, >')
         operator, input_value = Operator.from_symbol(operator), converted(input_value.replace(r'\"', '"'))
         self.query.where(column, condition=lambda value: operator(value, input_value))
+
+
+class DescribeQueryBuilder(AbstractQueryBuilder):
+    pattern = re.compile(r'(?i:DESCRIBE)\s+(?P<table>.+)')
+
+    def __init__(self):
+        super().__init__()
+
+    @classmethod
+    def from_parts(cls, parts):
+        [table] = parts.groupdict().values()
+        return cls().describe(table).query
+
+    @return_self
+    def describe(self, table):
+        self.query = Describe(table)
 
 
 class SelectQueryBuilder(AbstractQueryBuilder):

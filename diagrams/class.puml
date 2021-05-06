@@ -8,6 +8,10 @@ abstract class FilteredQuery {
     + where()
 }
 
+class Describe {
+    + run()
+}
+
 class Select {
     + select()
     + from()
@@ -18,6 +22,7 @@ class Select {
 }
 
 class Update {
+    + set()
     + run()
 }
 
@@ -38,6 +43,13 @@ abstract class AbstractQueryBuilder {
     + {abstract} {static} from_parts()
     ~ from()
     ~ where()
+}
+
+class DescribeQueryBuilder {
+    - Describe query
+    + {static} String pattern
+    + {static} from_parts()
+    - describe()
 }
 
 class SelectQueryBuilder {
@@ -78,14 +90,17 @@ class QueryRunner {
 }
 
 FilteredQuery -up-|> AbstractQuery
+Describe -up-|> AbstractQuery
 Select -up-|> FilteredQuery
 Update -up-|> FilteredQuery
 Delete -up-|> FilteredQuery
 Insert -up-|> AbstractQuery
+DescribeQueryBuilder -up-* Describe
 SelectQueryBuilder -up-* Select
 UpdateQueryBuilder -up-* Update
 DeleteQueryBuilder -up-* Delete
 InsertQueryBuilder -up-* Insert
+DescribeQueryBuilder -up-|> AbstractQueryBuilder
 SelectQueryBuilder -up-|> AbstractQueryBuilder
 UpdateQueryBuilder -up-|> AbstractQueryBuilder
 DeleteQueryBuilder -up-|> AbstractQueryBuilder

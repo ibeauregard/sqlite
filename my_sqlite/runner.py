@@ -1,6 +1,7 @@
 import functools
 
-from my_sqlite.builder import SelectQueryBuilder, UpdateQueryBuilder, DeleteQueryBuilder, InsertQueryBuilder
+from my_sqlite.builder import SelectQueryBuilder, UpdateQueryBuilder, DeleteQueryBuilder, InsertQueryBuilder, \
+    DescribeQueryBuilder
 from my_sqlite.error import NoSuchTableError, NoSuchColumnError, AmbiguousColumnNameError, InsertError, \
     QuerySyntaxError
 
@@ -17,7 +18,7 @@ def error_handling(func):
 
 
 class QueryRunner:
-    builders = (SelectQueryBuilder, UpdateQueryBuilder, DeleteQueryBuilder, InsertQueryBuilder)
+    builders = (DescribeQueryBuilder, SelectQueryBuilder, UpdateQueryBuilder, DeleteQueryBuilder, InsertQueryBuilder)
 
     @classmethod
     @error_handling

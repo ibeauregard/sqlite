@@ -265,3 +265,12 @@ class Update(FilteredQuery):
             for column, value in self._update_dict.items():
                 entry[column] = value
         return entry
+
+
+class Describe(AbstractQuery):
+    def __init__(self, table):
+        super().__init__()
+        self.append_table(table)
+
+    def run(self):
+        print(*next(iter(self.table_map.values())).header_map_case_preserved.keys())
