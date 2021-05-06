@@ -1,5 +1,6 @@
 import sys
 
+from config.config import Config
 from my_sqlite.conversion import decoded, queries_from_input_lines
 from my_sqlite.runner import QueryRunner
 
@@ -8,7 +9,7 @@ if __name__ == '__main__':
     print('To exit the application, use CTRL + D.\n')
     try:
         while True:
-            print(f'[{sys.argv[1]}]')
+            print(f'[{Config.database_path}]')
             lines, line = [], ''
             while not line or set(line) == {';'}:
                 print('my_sqlite>', end=' ')
