@@ -36,7 +36,16 @@ class InsertError(Exception):
         self.message = message
 
     def __str__(self):
-        return f'Error: {self.message}: insert error'
+        return f'Error: {self.message}'
+
+
+class UpdateError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f'Error: {self.message}'
 
 
 class QuerySyntaxError(Exception):

@@ -28,6 +28,9 @@ First, the application tries to convert the value to an integer. It that convers
 
 Thanks to these conversions, the natural ordering of numerical types can be observed, i.e. a comparison such a 2 < 10 is true, whereas '2' < '10' is false.
 
+## Unique ID constraint
+By convention, a unity constraint is enforced on the values of the 0-th column of every table. 
+
 ## Escaped characters
 You can use escape sequences in your queries, e.g. `\\`, `\'`, `\"`, `\n`, `\r`, `\t`, etc. This is particularly useful if you need to include quotes inside a `value` element (see the syntax diagrams below), or any control character such as a tab or a line feed. These characters will be decoded appropriately.
 

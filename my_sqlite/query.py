@@ -8,7 +8,7 @@ from pathlib import Path
 from config.config import Config
 from my_sqlite.conversion import converted
 from my_sqlite.error import NoSuchTableError, AmbiguousColumnNameError, NoSuchColumnError, translate_key_error, \
-    InsertError
+    InsertError, UpdateError
 
 
 class AbstractQuery(ABC):
@@ -166,13 +166,13 @@ class Insert(AbstractQuery):
         table = next(iter(self.table_map.values()))
         with open(table.path) as table_file:
             rows = self._parse_table(table_file)
-        existing_ids = set(row[0] for row in rows)
+        existing_ids = {row[0] for row in rows}
         row_len = len(table.header_map)
         rows_to_insert = []
         for row in self._inserted_rows:
             row_id = row[self._value_indices[0]]
             if row_id in existing_ids:
-                raise InsertError(f"attempting to store more than one record with id {row_id}; aborting the insert")
+                raise InsertError(f"attempting to store more than one record with id '{row_id}'; aborting the insert")
             existing_ids.add(row_id)
             rows_to_insert.append(
                 [row[self._value_indices[i]] if i in self._value_indices else '' for i in range(row_len)])
@@ -256,7 +256,12 @@ class Update(FilteredQuery):
         table = next(iter(self.table_map.values()))
         with open(table.path) as table_file:
             entries = self._parse_table(table_file)
-            updated_entries = (self._update(entry) for entry in entries)
+            updated_entries, seen_ids = [], set()
+            for entry in entries:
+                updated_entries.append(self._update(entry))
+                if entry[0] in seen_ids:
+                    raise UpdateError(f"Attempting to store more than one row with id '{entry[0]}'; refusing to update")
+                seen_ids.add(entry[0])
         with open(table.path, 'w') as table_file:
             table_file.write(self._serialize_table(updated_entries))
 
