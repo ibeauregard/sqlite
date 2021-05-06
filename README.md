@@ -4,7 +4,7 @@
 
 This project is a partial replica of the SQLite command-line interface (CLI) and data manipulation operations.
 
-It is implemented with Python 3.6, using only modules of the [Python Standard Library](https://docs.python.org/3.6/library/index.html). Note that this project would arguably become trivial if one were to use a data manipulation tool such as the [pandas library](https://pandas.pydata.org/).
+It is implemented with Python 3.6, using only modules of the [Python Standard Library](https://docs.python.org/3.6/library/index.html). Note that the data manipulation part of this project would arguably become trivial if one were to use a data manipulation tool such as the [pandas library](https://pandas.pydata.org/).
 
 ## Running my_sqlite
 
