@@ -35,7 +35,8 @@ class AbstractQuery(ABC):
         self.table_map[table] = Table(index=len(self.table_map),
                                       path=table_path,
                                       header_map={header.lower(): i for i, header in enumerate(headers)},
-                                      header_map_case_preserved={header: i for i, header in enumerate(headers)})
+                                      header_map_case_preserved={header: i for i, header in enumerate(headers)},
+                                      filter=lambda row: True)
 
     @classmethod
     def _parse_table(cls, table_file):
@@ -59,8 +60,11 @@ class AbstractQuery(ABC):
     def get_tables_in_query_order(self):
         return sorted(self.table_map.values(), key=lambda t: t.index)
 
+    def get_table_by_index(self, index):
+        return next(table for table in self.table_map.values() if table.index == index)
 
-Table = collections.namedtuple('Table', ['index', 'path', 'header_map', 'header_map_case_preserved'])
+
+Table = collections.namedtuple('Table', ['index', 'path', 'header_map', 'header_map_case_preserved', 'filter'])
 
 
 class FilteredQuery(AbstractQuery):
@@ -183,7 +187,7 @@ class Insert(AbstractQuery):
 class Select(FilteredQuery):
     def __init__(self):
         super().__init__()
-        self._on_filter = lambda row: True
+        self._on_keys = None
         self._select_keys = None
         self._order_keys = []
         self._order_ascending = True
@@ -199,7 +203,10 @@ class Select(FilteredQuery):
 
     def _on(self, join_keys):
         key1, key2 = self._map_keys(*join_keys)
-        self._on_filter = lambda row: row[key1.table][key1.column] == row[key2.table][key2.column]
+        if key1.table == key2.table:
+            self.get_table_by_index(key1.table).filter = lambda row: row[key1.column] == row[key2.column]
+        else:
+            self._on_keys = tuple(key.column for key in sorted((key1, key2), key=lambda k: k.table))
 
     def select(self, columns):
         key_groups = []
@@ -217,7 +224,7 @@ class Select(FilteredQuery):
         self._limit = limit if limit >= 0 else None
 
     def run(self):
-        filtered_rows = (row for row in self._get_rows() if self._on_filter(row) and self._where_filter(row))
+        filtered_rows = (row for row in self._get_rows() if self._where_filter(row))
         result = ((row[table][column] for table, column in self._select_keys)
                   for row in self._order_and_limit(list(filtered_rows)))
         print(*('|'.join(entry) for entry in result), sep='\n')
@@ -226,9 +233,17 @@ class Select(FilteredQuery):
         tables = []
         for table in self.get_tables_in_query_order():
             with open(table.path) as table_file:
-                rows = self._parse_table(table_file)
+                rows = filter(table.filter, self._parse_table(table_file))
             tables.append(rows)
-        return itertools.product(*tables)
+        if self._on_keys is None:
+            return itertools.product(*tables)
+        groups0 = collections.defaultdict(list)
+        for record in tables[0]:
+            groups0[record[self._on_keys[0]]].append(record)
+        groups1 = collections.defaultdict(list)
+        for record in tables[1]:
+            groups1[record[self._on_keys[1]]].append(record)
+        return itertools.chain.from_iterable(itertools.product(group, groups1[key]) for key, group in groups0.items())
 
     def _order_and_limit(self, rows):
         for key, reverse in reversed(self._order_keys):
