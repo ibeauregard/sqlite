@@ -36,7 +36,7 @@ class AbstractQuery(ABC):
                                  path=table_path,
                                  header_map={header.lower(): i for i, header in enumerate(headers)},
                                  headers=headers,
-                                 filter=[]))
+                                 filters=[]))
         if name in self.table_map:
             name += f'__{len(self.table_map)}'
         self.table_map[name] = len(self.table_map)
@@ -60,7 +60,7 @@ class AbstractQuery(ABC):
         return line.rstrip(cls._record_sep).split(cls._unit_sep)
 
 
-Table = collections.namedtuple('Table', ['index', 'name', 'path', 'header_map', 'headers', 'filter'])
+Table = collections.namedtuple('Table', ['index', 'name', 'path', 'header_map', 'headers', 'filters'])
 
 
 class FilteredQuery(AbstractQuery):
@@ -217,8 +217,8 @@ class Select(FilteredQuery):
         tables = []
         for table in self.tables:
             with open(table.path) as table_file:
-                rows = (row for row in self._parse_table(table_file) if not table.filter or table.filter[0](row))
-            tables.append(rows)
+                tables.append(
+                    row for row in self._parse_table(table_file) if not table.filters or table.filters[0](row))
         if self._on_keys is None:
             return itertools.product(*tables)
         groups0, groups1 = self._get_groups(tables)
