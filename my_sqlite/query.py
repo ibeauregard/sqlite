@@ -208,7 +208,7 @@ class Select(FilteredQuery):
         self._limit = limit if limit >= 0 else None
 
     def run(self):
-        joined_rows = (row for row in self._get_rows() if self._where_filter(row))
+        joined_rows = filter(self._where_filter, self._get_rows())
         result = ((row[table][column] for table, column in self._select_keys)
                   for row in self._order_and_limit(list(joined_rows)))
         print(*('|'.join(row) for row in result), sep='\n')
