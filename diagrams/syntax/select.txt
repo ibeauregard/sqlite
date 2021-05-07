@@ -10,4 +10,4 @@ name ::= [A-Za-z0-9_]+
 
 value ::= '"'[^"]*'"'
 
-ordering_term ::= column_name (ASC | DESC)?
+ordering_term ::= column_name ('ASC' | 'DESC')?

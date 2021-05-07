@@ -52,7 +52,7 @@ You can use escape sequences in your queries, e.g. `\\`, `\'`, `\"`, `\n`, `\r`,
 
 ## The DELETE statement
 
-![Syntax of the DELETE statement](diagrams/syntax/update.svg?raw=true&sanitize=true)
+![Syntax of the DELETE statement](diagrams/syntax/delete.svg?raw=true&sanitize=true)
 
 ## Running the tests
 

@@ -423,47 +423,43 @@
 
 <g fill="#332900" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="evenodd" d="M577,91 L645,91 L645,123 L577,123 L577,91"/>
+<path vector-effect="none" fill-rule="nonzero" d="M587,91 L639,91 C644.523,91 649,95.4771 649,101 L649,113 C649,118.523 644.523,123 639,123 L587,123 C581.477,123 577,118.523 577,113 L577,101 C577,95.4771 581.477,91 587,91 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M577,91 L645,91 L645,123 L577,123 L577,91"/>
+<path vector-effect="none" fill-rule="nonzero" d="M587,91 L639,91 C644.523,91 649,95.4771 649,101 L649,113 C649,118.523 644.523,123 639,123 L587,123 C581.477,123 577,118.523 577,113 L577,101 C577,95.4771 581.477,91 587,91 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
 >
 </g>
 
-<g fill="#ffec9e" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
+<g fill="#ffdb4d" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="evenodd" d="M575,89 L643,89 L643,121 L575,121 L575,89"/>
+<path vector-effect="none" fill-rule="nonzero" d="M585,89 L637,89 C642.523,89 647,93.4771 647,99 L647,111 C647,116.523 642.523,121 637,121 L585,121 C579.477,121 575,116.523 575,111 L575,99 C575,93.4771 579.477,89 585,89 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M575,89 L643,89 L643,121 L575,121 L575,89"/>
+<path vector-effect="none" fill-rule="nonzero" d="M585,89 L637,89 C642.523,89 647,93.4771 647,99 L647,111 C647,116.523 642.523,121 637,121 L585,121 C579.477,121 575,116.523 575,111 L575,99 C575,93.4771 579.477,89 585,89 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
 >
 </g>
 
-<g fill="#1a1400" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
+<g fill="#141000" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
 >
 </g>
 
-<g fill="#1a1400" fill-opacity="1" stroke="#1a1400" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,8,53)"
+<g fill="#141000" fill-opacity="1" stroke="#141000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,8,53)"
 >
-<text fill="#1a1400" fill-opacity="1" stroke="none" xml:space="preserve" x="585" y="109" font-family="Verdana" font-size="12" font-weight="400" font-style="normal" 
+<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="585" y="109" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
  >VALUES</text>
 </g>
 
-<g fill="#1a1400" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
->
-</g>
-
-<g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
+<g fill="#141000" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
 >
 </g>
 
@@ -481,12 +477,12 @@
 
 <g fill="#332900" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M695,91 L701,91 C706.523,91 711,95.4771 711,101 L711,113 C711,118.523 706.523,123 701,123 L695,123 C689.477,123 685,118.523 685,113 L685,101 C685,95.4771 689.477,91 695,91 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M699,91 L705,91 C710.523,91 715,95.4771 715,101 L715,113 C715,118.523 710.523,123 705,123 L699,123 C693.477,123 689,118.523 689,113 L689,101 C689,95.4771 693.477,91 699,91 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M695,91 L701,91 C706.523,91 711,95.4771 711,101 L711,113 C711,118.523 706.523,123 701,123 L695,123 C689.477,123 685,118.523 685,113 L685,101 C685,95.4771 689.477,91 695,91 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M699,91 L705,91 C710.523,91 715,95.4771 715,101 L715,113 C715,118.523 710.523,123 705,123 L699,123 C693.477,123 689,118.523 689,113 L689,101 C689,95.4771 693.477,91 699,91 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -495,12 +491,12 @@
 
 <g fill="#ffdb4d" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M693,89 L699,89 C704.523,89 709,93.4771 709,99 L709,111 C709,116.523 704.523,121 699,121 L693,121 C687.477,121 683,116.523 683,111 L683,99 C683,93.4771 687.477,89 693,89 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M697,89 L703,89 C708.523,89 713,93.4771 713,99 L713,111 C713,116.523 708.523,121 703,121 L697,121 C691.477,121 687,116.523 687,111 L687,99 C687,93.4771 691.477,89 697,89 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M693,89 L699,89 C704.523,89 709,93.4771 709,99 L709,111 C709,116.523 704.523,121 699,121 L693,121 C687.477,121 683,116.523 683,111 L683,99 C683,93.4771 687.477,89 693,89 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M697,89 L703,89 C708.523,89 713,93.4771 713,99 L713,111 C713,116.523 708.523,121 703,121 L697,121 C691.477,121 687,116.523 687,111 L687,99 C687,93.4771 691.477,89 697,89 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -513,7 +509,7 @@
 
 <g fill="#141000" fill-opacity="1" stroke="#141000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,8,53)"
 >
-<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="693" y="109" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
+<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="697" y="109" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
  >(</text>
 </g>
 
@@ -535,12 +531,12 @@
 
 <g fill="#332900" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="evenodd" d="M751,91 L805,91 L805,123 L751,123 L751,91"/>
+<path vector-effect="none" fill-rule="evenodd" d="M755,91 L809,91 L809,123 L755,123 L755,91"/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M751,91 L805,91 L805,123 L751,123 L751,91"/>
+<path vector-effect="none" fill-rule="nonzero" d="M755,91 L809,91 L809,123 L755,123 L755,91"/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -549,12 +545,12 @@
 
 <g fill="#ffec9e" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="evenodd" d="M749,89 L803,89 L803,121 L749,121 L749,89"/>
+<path vector-effect="none" fill-rule="evenodd" d="M753,89 L807,89 L807,121 L753,121 L753,89"/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M749,89 L803,89 L803,121 L749,121 L749,89"/>
+<path vector-effect="none" fill-rule="nonzero" d="M753,89 L807,89 L807,121 L753,121 L753,89"/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -567,7 +563,7 @@
 
 <g fill="#1a1400" fill-opacity="1" stroke="#1a1400" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,8,53)"
 >
-<text fill="#1a1400" fill-opacity="1" stroke="none" xml:space="preserve" x="759" y="109" font-family="Verdana" font-size="12" font-weight="400" font-style="normal" 
+<text fill="#1a1400" fill-opacity="1" stroke="none" xml:space="preserve" x="763" y="109" font-family="Verdana" font-size="12" font-weight="400" font-style="normal" 
  >value</text>
 </g>
 
@@ -593,12 +589,12 @@
 
 <g fill="#332900" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M761,47 L765,47 C770.523,47 775,51.4771 775,57 L775,69 C775,74.5229 770.523,79 765,79 L761,79 C755.477,79 751,74.5229 751,69 L751,57 C751,51.4771 755.477,47 761,47 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M765,47 L769,47 C774.523,47 779,51.4771 779,57 L779,69 C779,74.5229 774.523,79 769,79 L765,79 C759.477,79 755,74.5229 755,69 L755,57 C755,51.4771 759.477,47 765,47 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M761,47 L765,47 C770.523,47 775,51.4771 775,57 L775,69 C775,74.5229 770.523,79 765,79 L761,79 C755.477,79 751,74.5229 751,69 L751,57 C751,51.4771 755.477,47 761,47 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M765,47 L769,47 C774.523,47 779,51.4771 779,57 L779,69 C779,74.5229 774.523,79 769,79 L765,79 C759.477,79 755,74.5229 755,69 L755,57 C755,51.4771 759.477,47 765,47 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -607,12 +603,12 @@
 
 <g fill="#ffdb4d" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M759,45 L763,45 C768.523,45 773,49.4771 773,55 L773,67 C773,72.5229 768.523,77 763,77 L759,77 C753.477,77 749,72.5229 749,67 L749,55 C749,49.4771 753.477,45 759,45 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M763,45 L767,45 C772.523,45 777,49.4771 777,55 L777,67 C777,72.5229 772.523,77 767,77 L763,77 C757.477,77 753,72.5229 753,67 L753,55 C753,49.4771 757.477,45 763,45 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M759,45 L763,45 C768.523,45 773,49.4771 773,55 L773,67 C773,72.5229 768.523,77 763,77 L759,77 C753.477,77 749,72.5229 749,67 L749,55 C749,49.4771 753.477,45 759,45 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M763,45 L767,45 C772.523,45 777,49.4771 777,55 L777,67 C777,72.5229 772.523,77 767,77 L763,77 C757.477,77 753,72.5229 753,67 L753,55 C753,49.4771 757.477,45 763,45 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -625,7 +621,7 @@
 
 <g fill="#141000" fill-opacity="1" stroke="#141000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,8,53)"
 >
-<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="759" y="65" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
+<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="763" y="65" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
  >,</text>
 </g>
 
@@ -647,12 +643,12 @@
 
 <g fill="#332900" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M855,91 L861,91 C866.523,91 871,95.4771 871,101 L871,113 C871,118.523 866.523,123 861,123 L855,123 C849.477,123 845,118.523 845,113 L845,101 C845,95.4771 849.477,91 855,91 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M859,91 L865,91 C870.523,91 875,95.4771 875,101 L875,113 C875,118.523 870.523,123 865,123 L859,123 C853.477,123 849,118.523 849,113 L849,101 C849,95.4771 853.477,91 859,91 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M855,91 L861,91 C866.523,91 871,95.4771 871,101 L871,113 C871,118.523 866.523,123 861,123 L855,123 C849.477,123 845,118.523 845,113 L845,101 C845,95.4771 849.477,91 855,91 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M859,91 L865,91 C870.523,91 875,95.4771 875,101 L875,113 C875,118.523 870.523,123 865,123 L859,123 C853.477,123 849,118.523 849,113 L849,101 C849,95.4771 853.477,91 859,91 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -661,12 +657,12 @@
 
 <g fill="#ffdb4d" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M853,89 L859,89 C864.523,89 869,93.4771 869,99 L869,111 C869,116.523 864.523,121 859,121 L853,121 C847.477,121 843,116.523 843,111 L843,99 C843,93.4771 847.477,89 853,89 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M857,89 L863,89 C868.523,89 873,93.4771 873,99 L873,111 C873,116.523 868.523,121 863,121 L857,121 C851.477,121 847,116.523 847,111 L847,99 C847,93.4771 851.477,89 857,89 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M853,89 L859,89 C864.523,89 869,93.4771 869,99 L869,111 C869,116.523 864.523,121 859,121 L853,121 C847.477,121 843,116.523 843,111 L843,99 C843,93.4771 847.477,89 853,89 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M857,89 L863,89 C868.523,89 873,93.4771 873,99 L873,111 C873,116.523 868.523,121 863,121 L857,121 C851.477,121 847,116.523 847,111 L847,99 C847,93.4771 851.477,89 857,89 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -679,7 +675,7 @@
 
 <g fill="#141000" fill-opacity="1" stroke="#141000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,8,53)"
 >
-<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="853" y="109" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
+<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="857" y="109" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
  >)</text>
 </g>
 
@@ -701,12 +697,12 @@
 
 <g fill="#332900" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M695,3 L699,3 C704.523,3 709,7.47715 709,13 L709,25 C709,30.5229 704.523,35 699,35 L695,35 C689.477,35 685,30.5229 685,25 L685,13 C685,7.47715 689.477,3 695,3 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M699,3 L703,3 C708.523,3 713,7.47715 713,13 L713,25 C713,30.5229 708.523,35 703,35 L699,35 C693.477,35 689,30.5229 689,25 L689,13 C689,7.47715 693.477,3 699,3 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M695,3 L699,3 C704.523,3 709,7.47715 709,13 L709,25 C709,30.5229 704.523,35 699,35 L695,35 C689.477,35 685,30.5229 685,25 L685,13 C685,7.47715 689.477,3 695,3 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M699,3 L703,3 C708.523,3 713,7.47715 713,13 L713,25 C713,30.5229 708.523,35 703,35 L699,35 C693.477,35 689,30.5229 689,25 L689,13 C689,7.47715 693.477,3 699,3 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -715,12 +711,12 @@
 
 <g fill="#ffdb4d" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M693,1 L697,1 C702.523,1 707,5.47715 707,11 L707,23 C707,28.5229 702.523,33 697,33 L693,33 C687.477,33 683,28.5229 683,23 L683,11 C683,5.47715 687.477,1 693,1 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M697,1 L701,1 C706.523,1 711,5.47715 711,11 L711,23 C711,28.5229 706.523,33 701,33 L697,33 C691.477,33 687,28.5229 687,23 L687,11 C687,5.47715 691.477,1 697,1 "/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M693,1 L697,1 C702.523,1 707,5.47715 707,11 L707,23 C707,28.5229 702.523,33 697,33 L693,33 C687.477,33 683,28.5229 683,23 L683,11 C683,5.47715 687.477,1 693,1 "/>
+<path vector-effect="none" fill-rule="nonzero" d="M697,1 L701,1 C706.523,1 711,5.47715 711,11 L711,23 C711,28.5229 706.523,33 701,33 L697,33 C691.477,33 687,28.5229 687,23 L687,11 C687,5.47715 691.477,1 697,1 "/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -733,7 +729,7 @@
 
 <g fill="#141000" fill-opacity="1" stroke="#141000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,8,53)"
 >
-<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="693" y="21" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
+<text fill="#141000" fill-opacity="1" stroke="none" xml:space="preserve" x="697" y="21" font-family="Verdana" font-size="12" font-weight="700" font-style="normal" 
  >,</text>
 </g>
 
@@ -755,7 +751,7 @@
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M17,105 L19,105 M19,105 L29,105 M139,105 L149,105 M149,105 L159,105 M255,105 L265,105 M285,105 L295,105 M321,105 L331,105 M351,105 L361,105 M469,105 L479,105 M331,105 L351,105 M350,105 C344,105 341,101.667 341,95 L341,71 C341,64.3333 344.333,61 351,61 M479,105 L499,105 M479,105 C485.667,105 489,101.667 489,95 L489,71 C489,64.3333 485.667,61 479,61 M351,61 L361,61 M385,61 L395,61 M395,61 L479,61 M499,105 L509,105 M535,105 L545,105 M265,105 L285,105 M545,105 L565,105 M265,105 C271.667,105 275,108.333 275,115 M555,115 C555,108.333 558.333,105 565,105 M275,115 L275,129 M555,129 L555,115 M275,129 C275,135.667 278.333,139 285,139 M545,139 C551.667,139 555,135.667 555,129 M285,139 L295,139 M295,139 L545,139 M565,105 L575,105 M643,105 L653,105 M673,105 L683,105 M709,105 L719,105 M739,105 L749,105 M803,105 L813,105 M719,105 L739,105 M738,105 C732,105 729,101.667 729,95 L729,71 C729,64.3333 732.333,61 739,61 M813,105 L833,105 M813,105 C819.667,105 823,101.667 823,95 L823,71 C823,64.3333 819.667,61 813,61 M739,61 L749,61 M773,61 L783,61 M783,61 L813,61 M833,105 L843,105 M869,105 L879,105 M653,105 L673,105 M672,105 C666,105 663,101.667 663,95 L663,27 C663,20.3333 666.333,17 673,17 M879,105 L899,105 M879,105 C885.667,105 889,101.667 889,95 L889,27 C889,20.3333 885.667,17 879,17 M673,17 L683,17 M707,17 L717,17 M717,17 L879,17 M902,105 L899,105"/>
+<path vector-effect="none" fill-rule="nonzero" d="M17,105 L19,105 M19,105 L29,105 M139,105 L149,105 M149,105 L159,105 M255,105 L265,105 M285,105 L295,105 M321,105 L331,105 M351,105 L361,105 M469,105 L479,105 M331,105 L351,105 M350,105 C344,105 341,101.667 341,95 L341,71 C341,64.3333 344.333,61 351,61 M479,105 L499,105 M479,105 C485.667,105 489,101.667 489,95 L489,71 C489,64.3333 485.667,61 479,61 M351,61 L361,61 M385,61 L395,61 M395,61 L479,61 M499,105 L509,105 M535,105 L545,105 M265,105 L285,105 M545,105 L565,105 M265,105 C271.667,105 275,108.333 275,115 M555,115 C555,108.333 558.333,105 565,105 M275,115 L275,129 M555,129 L555,115 M275,129 C275,135.667 278.333,139 285,139 M545,139 C551.667,139 555,135.667 555,129 M285,139 L295,139 M295,139 L545,139 M565,105 L575,105 M647,105 L657,105 M677,105 L687,105 M713,105 L723,105 M743,105 L753,105 M807,105 L817,105 M723,105 L743,105 M742,105 C736,105 733,101.667 733,95 L733,71 C733,64.3333 736.333,61 743,61 M817,105 L837,105 M817,105 C823.667,105 827,101.667 827,95 L827,71 C827,64.3333 823.667,61 817,61 M743,61 L753,61 M777,61 L787,61 M787,61 L817,61 M837,105 L847,105 M873,105 L883,105 M657,105 L677,105 M676,105 C670,105 667,101.667 667,95 L667,27 C667,20.3333 670.333,17 677,17 M883,105 L903,105 M883,105 C889.667,105 893,101.667 893,95 L893,27 C893,20.3333 889.667,17 883,17 M677,17 L687,17 M711,17 L721,17 M721,17 L883,17 M906,105 L903,105"/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -764,12 +760,12 @@
 
 <g fill="#332900" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M909,105 L917,101 L917,109 L909,105"/>
+<path vector-effect="none" fill-rule="nonzero" d="M913,105 L921,101 L921,109 L913,105"/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M909,105 L917,101 L917,109 L909,105"/>
+<path vector-effect="none" fill-rule="nonzero" d="M913,105 L921,101 L921,109 L913,105"/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -778,12 +774,12 @@
 
 <g fill="#332900" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M909,105 L901,101 L901,109 L909,105"/>
+<path vector-effect="none" fill-rule="nonzero" d="M913,105 L905,101 L905,109 L913,105"/>
 </g>
 
 <g fill="none" stroke="#332900" stroke-opacity="1" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="matrix(1,0,0,1,8,53)"
 >
-<path vector-effect="none" fill-rule="nonzero" d="M909,105 L901,101 L901,109 L909,105"/>
+<path vector-effect="none" fill-rule="nonzero" d="M913,105 L905,101 L905,109 L913,105"/>
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
@@ -807,10 +803,6 @@
 </g>
 
 <g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,0,0)"
->
-</g>
-
-<g fill="#0f0c00" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" transform="matrix(1,0,0,1,8,53)"
 >
 </g>
 
