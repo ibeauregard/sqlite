@@ -218,8 +218,7 @@ class Select(FilteredQuery):
 
     def run(self):
         filtered_rows = (row for row in self._get_rows() if self._on_filter(row) and self._where_filter(row))
-        result = ((row[table][column] for table, column in self._select_keys) if self._select_keys
-                  else itertools.chain(*row)
+        result = ((row[table][column] for table, column in self._select_keys)
                   for row in self._order_and_limit(list(filtered_rows)))
         print(*('|'.join(entry) for entry in result), sep='\n')
 
