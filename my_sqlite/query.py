@@ -18,25 +18,28 @@ class AbstractQuery(ABC):
     _record_sep = Config.record_separator
 
     def __init__(self):
+        self.tables = []
         self.table_map = {}
 
     @abstractmethod
     def run(self):
         pass
 
-    def append_table(self, table):
-        table_path = Path(self._database_path) / f'{table}{self._file_extension}'
+    def append_table(self, name):
+        table_path = Path(self._database_path) / f'{name}{self._file_extension}'
         if not table_path.is_file():
-            raise NoSuchTableError(table)
+            raise NoSuchTableError(name)
         with open(table_path) as table_file:
             headers = self.strip_and_split(table_file.read().partition(self._record_sep)[0])
-        if table in self.table_map:
-            table += f'__{len(self.table_map)}'
-        self.table_map[table] = Table(index=len(self.table_map),
-                                      path=table_path,
-                                      header_map={header.lower(): i for i, header in enumerate(headers)},
-                                      header_map_case_preserved={header: i for i, header in enumerate(headers)},
-                                      filter=lambda row: True)
+        self.tables.append(Table(index=len(self.tables),
+                                 name=name,
+                                 path=table_path,
+                                 header_map={header.lower(): i for i, header in enumerate(headers)},
+                                 headers=headers,
+                                 filter=[]))
+        if name in self.table_map:
+            name += f'__{len(self.table_map)}'
+        self.table_map[name] = len(self.table_map)
 
     @classmethod
     def _parse_table(cls, table_file):
@@ -45,8 +48,7 @@ class AbstractQuery(ABC):
         return map(cls.strip_and_split, records)
 
     def _serialize_table(self, entries):
-        header_map = next(iter(self.table_map.values())).header_map_case_preserved
-        return f"{self._unit_sep.join(header_map)}{self._record_sep}{self._serialize_rows(entries)}"
+        return f"{self._unit_sep.join(self.tables[0].headers)}{self._record_sep}{self._serialize_rows(entries)}"
 
     @classmethod
     def _serialize_rows(cls, entries):
@@ -57,14 +59,8 @@ class AbstractQuery(ABC):
     def strip_and_split(cls, line):
         return line.rstrip(cls._record_sep).split(cls._unit_sep)
 
-    def get_tables_in_query_order(self):
-        return sorted(self.table_map.values(), key=lambda t: t.index)
 
-    def get_table_by_index(self, index):
-        return next(table for table in self.table_map.values() if table.index == index)
-
-
-Table = collections.namedtuple('Table', ['index', 'path', 'header_map', 'header_map_case_preserved', 'filter'])
+Table = collections.namedtuple('Table', ['index', 'name', 'path', 'header_map', 'headers', 'filter'])
 
 
 class FilteredQuery(AbstractQuery):
@@ -82,38 +78,26 @@ class FilteredQuery(AbstractQuery):
 
     def _map_key(self, key):
         key_parts = key.split('.', maxsplit=1)
-        if len(key_parts) == 1:
-            return self._map_one_part_key(key)
-        else:  # len == 2
-            return self._map_two_part_key(key_parts)
-
-    def _map_one_part_key(self, key):
-        lower_key = key.lower()
-        matches = tuple((table.index, table.header_map[lower_key])
-                        for table in self.table_map.values() if lower_key in table.header_map)
+        lowercase_column = key_parts[-1].lower()
+        matches = tuple((table.index, table.header_map[lowercase_column])
+                        for table in self.tables
+                        if lowercase_column in table.header_map and (len(key_parts) == 1 or table.name == key_parts[0]))
         if len(matches) > 1:
             raise AmbiguousColumnNameError(key)
         if not matches:
             raise NoSuchColumnError(key)
         return Key(*matches[0])
 
-    def _map_two_part_key(self, parts):
-        try:
-            table = self.table_map[parts[0]]
-            return Key(table=table.index, column=table.header_map[parts[1].lower()])
-        except KeyError:
-            raise NoSuchColumnError('.'.join(parts))
-
     def _get_key_set(self, table):
         try:
             return (Key(*key) for key in
-                    (self._get_full_key_set() if table is None else self._get_one_table_key_set(self.table_map[table])))
+                    (self._get_full_key_set() if table is None
+                     else self._get_one_table_key_set(self.tables[self.table_map[table]])))
         except KeyError:
             raise NoSuchTableError(table)
 
     def _get_full_key_set(self):
-        return itertools.chain.from_iterable(self._get_one_table_key_set(table)
-                                             for table in self.get_tables_in_query_order())
+        return itertools.chain.from_iterable(self._get_one_table_key_set(table) for table in self.tables)
 
     @staticmethod
     def _get_one_table_key_set(table):
@@ -131,7 +115,7 @@ class Delete(FilteredQuery):
         self.append_table(table)
 
     def run(self):
-        table = next(iter(self.table_map.values()))
+        table = self.tables[0]
         with open(table.path) as table_file:
             entries = self._parse_table(table_file)
             non_deleted_entries = [entry for entry in entries if not self._where_filter((entry,))]
@@ -151,7 +135,7 @@ class Insert(AbstractQuery):
 
     @translate_key_error
     def _translate_columns(self, columns):
-        table_header = next(iter(self.table_map.values())).header_map
+        table_header = self.tables[0].header_map
         if columns is None:
             self._value_indices = tuple(range(len(table_header)))
         else:
@@ -162,12 +146,12 @@ class Insert(AbstractQuery):
     def values(self, rows):
         row_len, num_columns = len(rows[0]), len(self._value_indices)
         if row_len != num_columns:
-            raise InsertError(f"table {next(iter(self.table_map))} has {num_columns} columns "
+            raise InsertError(f"table {self.tables[0].name} has {num_columns} columns "
                               f"but {row_len} values were supplied")
         self._inserted_rows = rows
 
     def run(self):
-        table = next(iter(self.table_map.values()))
+        table = self.tables[0]
         with open(table.path) as table_file:
             rows = self._parse_table(table_file)
         existing_ids = {row[0] for row in rows}
@@ -204,7 +188,7 @@ class Select(FilteredQuery):
     def _on(self, join_keys):
         key1, key2 = self._map_keys(*join_keys)
         if key1.table == key2.table:
-            self.get_table_by_index(key1.table).filter = lambda row: row[key1.column] == row[key2.column]
+            self.tables[key1.table].filter.append(lambda row: row[key1.column] == row[key2.column])
         else:
             self._on_keys = tuple(key.column for key in sorted((key1, key2), key=lambda k: k.table))
 
@@ -231,19 +215,21 @@ class Select(FilteredQuery):
 
     def _get_rows(self):
         tables = []
-        for table in self.get_tables_in_query_order():
+        for table in self.tables:
             with open(table.path) as table_file:
-                rows = filter(table.filter, self._parse_table(table_file))
+                rows = (row for row in self._parse_table(table_file) if not table.filter or table.filter[0](row))
             tables.append(rows)
         if self._on_keys is None:
             return itertools.product(*tables)
-        groups0 = collections.defaultdict(list)
-        for record in tables[0]:
-            groups0[record[self._on_keys[0]]].append(record)
-        groups1 = collections.defaultdict(list)
-        for record in tables[1]:
-            groups1[record[self._on_keys[1]]].append(record)
+        groups0, groups1 = self._get_groups(tables)
         return itertools.chain.from_iterable(itertools.product(group, groups1[key]) for key, group in groups0.items())
+
+    def _get_groups(self, tables):
+        groups = [collections.defaultdict(list), collections.defaultdict(list)]
+        for index in range(2):
+            for record in tables[index]:
+                groups[index][record[self._on_keys[index]]].append(record)
+        return groups
 
     def _order_and_limit(self, rows):
         for key, reverse in reversed(self._order_keys):
@@ -263,11 +249,11 @@ class Update(FilteredQuery):
 
     @translate_key_error
     def set(self, update_dict):
-        header_map = next(iter(self.table_map.values())).header_map
+        header_map = self.tables[0].header_map
         self._update_dict = {header_map[col.lower()]: value for col, value in update_dict.items()}
 
     def run(self):
-        table = next(iter(self.table_map.values()))
+        table = self.tables[0]
         with open(table.path) as table_file:
             entries = self._parse_table(table_file)
             updated_entries, seen_ids = [], set()
@@ -292,4 +278,4 @@ class Describe(AbstractQuery):
         self.append_table(table)
 
     def run(self):
-        print(*next(iter(self.table_map.values())).header_map_case_preserved.keys())
+        print(*self.tables[0].headers)
