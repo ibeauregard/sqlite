@@ -47,13 +47,13 @@ class AbstractQuery(ABC):
         records = itertools.islice(split_file, 1, len(split_file) - 1)
         return map(cls.strip_and_split, records)
 
-    def _serialize_table(self, entries):
-        return f"{self._unit_sep.join(self.tables[0].headers)}{self._record_sep}{self._serialize_rows(entries)}"
+    def _serialize_table(self, records):
+        return f"{self._unit_sep.join(self.tables[0].headers)}{self._record_sep}{self._serialize_records(records)}"
 
     @classmethod
-    def _serialize_rows(cls, entries):
-        serialized_rows = cls._record_sep.join(cls._unit_sep.join(entry) for entry in entries)
-        return f"{serialized_rows}{cls._record_sep if serialized_rows else ''}"
+    def _serialize_records(cls, records):
+        serialized_records = cls._record_sep.join(cls._unit_sep.join(record) for record in records)
+        return f"{serialized_records}{cls._record_sep if serialized_records else ''}"
 
     @classmethod
     def strip_and_split(cls, line):
@@ -117,17 +117,17 @@ class Delete(FilteredQuery):
     def run(self):
         table = self.tables[0]
         with open(table.path) as table_file:
-            entries = self._parse_table(table_file)
-            non_deleted_entries = [entry for entry in entries if not self._where_filter((entry,))]
+            records = self._parse_table(table_file)
+            non_deleted_records = [record for record in records if not self._where_filter((record,))]
         with open(table.path, 'w') as table_file:
-            table_file.write(self._serialize_table(non_deleted_entries))
+            table_file.write(self._serialize_table(non_deleted_records))
 
 
 class Insert(AbstractQuery):
     def __init__(self):
         super().__init__()
         self._value_indices = None
-        self._inserted_rows = None
+        self._insertions = None
 
     def into(self, table, *, columns=None):
         self.append_table(table)
@@ -143,29 +143,29 @@ class Insert(AbstractQuery):
             if 0 not in self._value_indices:
                 raise InsertError("the value of the column at index 0 must be specified")
 
-    def values(self, rows):
-        row_len, num_columns = len(rows[0]), len(self._value_indices)
-        if row_len != num_columns:
+    def values(self, records):
+        record_len, num_columns = len(records[0]), len(self._value_indices)
+        if record_len != num_columns:
             raise InsertError(f"table {self.tables[0].name} has {num_columns} columns "
-                              f"but {row_len} values were supplied")
-        self._inserted_rows = rows
+                              f"but {record_len} values were supplied")
+        self._insertions = records
 
     def run(self):
         table = self.tables[0]
         with open(table.path) as table_file:
-            rows = self._parse_table(table_file)
-        existing_ids = {row[0] for row in rows}
-        row_len = len(table.header_map)
-        rows_to_insert = []
-        for row in self._inserted_rows:
-            row_id = row[self._value_indices[0]]
-            if row_id in existing_ids:
-                raise InsertError(f"attempting to store more than one record with id '{row_id}'; aborting the insert")
-            existing_ids.add(row_id)
-            rows_to_insert.append(
-                [row[self._value_indices[i]] if i in self._value_indices else '' for i in range(row_len)])
+            records = self._parse_table(table_file)
+        existing_ids = {record[0] for record in records}
+        record_len = len(table.header_map)
+        records_to_insert = []
+        for insertion in self._insertions:
+            insertion_id = insertion[self._value_indices[0]]
+            if insertion_id in existing_ids:
+                raise InsertError(f"attempting to store more than one record with id '{insertion_id}'; aborting the insert")
+            existing_ids.add(insertion_id)
+            records_to_insert.append(
+                [insertion[self._value_indices[i]] if i in self._value_indices else '' for i in range(record_len)])
         with open(table.path, 'a') as table_file:
-            table_file.write(self._serialize_rows(rows_to_insert))
+            table_file.write(self._serialize_records(records_to_insert))
 
 
 class Select(FilteredQuery):
@@ -188,7 +188,7 @@ class Select(FilteredQuery):
     def _on(self, join_keys):
         key1, key2 = self._map_keys(*join_keys)
         if key1.table == key2.table:
-            self.tables[key1.table].filter.append(lambda row: row[key1.column] == row[key2.column])
+            self.tables[key1.table].filter.append(lambda record: record[key1.column] == record[key2.column])
         else:
             self._on_keys = tuple(key.column for key in sorted((key1, key2), key=lambda k: k.table))
 
@@ -208,10 +208,10 @@ class Select(FilteredQuery):
         self._limit = limit if limit >= 0 else None
 
     def run(self):
-        filtered_rows = (row for row in self._get_rows() if self._where_filter(row))
+        joined_rows = (row for row in self._get_rows() if self._where_filter(row))
         result = ((row[table][column] for table, column in self._select_keys)
-                  for row in self._order_and_limit(list(filtered_rows)))
-        print(*('|'.join(entry) for entry in result), sep='\n')
+                  for row in self._order_and_limit(list(joined_rows)))
+        print(*('|'.join(row) for row in result), sep='\n')
 
     def _get_rows(self):
         tables = []
@@ -255,21 +255,22 @@ class Update(FilteredQuery):
     def run(self):
         table = self.tables[0]
         with open(table.path) as table_file:
-            entries = self._parse_table(table_file)
-            updated_entries, seen_ids = [], set()
-            for entry in entries:
-                updated_entries.append(self._update(entry))
-                if entry[0] in seen_ids:
-                    raise UpdateError(f"Attempting to store more than one row with id '{entry[0]}'; refusing to update")
-                seen_ids.add(entry[0])
+            records = self._parse_table(table_file)
+            updated_records, seen_ids = [], set()
+            for record in records:
+                updated_records.append(self._update(record))
+                if record[0] in seen_ids:
+                    raise UpdateError(
+                        f"Attempting to store more than one record with id '{record[0]}'; refusing to update")
+                seen_ids.add(record[0])
         with open(table.path, 'w') as table_file:
-            table_file.write(self._serialize_table(updated_entries))
+            table_file.write(self._serialize_table(updated_records))
 
-    def _update(self, entry):
-        if self._where_filter((entry,)):
+    def _update(self, record):
+        if self._where_filter((record,)):
             for column, value in self._update_dict.items():
-                entry[column] = value
-        return entry
+                record[column] = value
+        return record
 
 
 class Describe(AbstractQuery):
