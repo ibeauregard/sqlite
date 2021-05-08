@@ -210,7 +210,7 @@ class Select(FilteredQuery):
     def run(self):
         joined_rows = filter(self._where_filter, self._get_rows())
         result = ((row[table][column] for table, column in self._select_keys)
-                  for row in self._order_and_limit(list(joined_rows)))
+                  for row in itertools.islice(self._order(joined_rows), self._limit))
         print(*('|'.join(row) for row in result), sep='\n')
 
     def _get_rows(self):
@@ -231,14 +231,14 @@ class Select(FilteredQuery):
                 groups[index][record[self._on_keys[index]]].append(record)
         return groups
 
-    def _order_and_limit(self, rows):
+    def _order(self, rows):
         for key, reverse in reversed(self._order_keys):
             def sort_key(row):
                 value = converted(row[key.table][key.column])
                 return (value != '' if reverse else value == ''), value
 
-            rows.sort(key=sort_key, reverse=reverse)
-        return itertools.islice(rows, self._limit)
+            rows = sorted(rows, key=sort_key, reverse=reverse)
+        return rows
 
 
 class Update(FilteredQuery):
