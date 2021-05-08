@@ -221,8 +221,9 @@ class Select(FilteredQuery):
                     row for row in self._parse_table(table_file) if not table.filters or table.filters[0](row))
         if self._on_keys is None:
             return itertools.product(*tables)
-        groups0, groups1 = self._get_groups(tables)
-        return itertools.chain.from_iterable(itertools.product(group, groups1[key]) for key, group in groups0.items())
+        groups_left, groups_right = self._get_groups(tables)
+        return itertools.chain.from_iterable(
+            itertools.product(group, groups_right[key]) for key, group in groups_left.items())
 
     def _get_groups(self, tables):
         groups = [collections.defaultdict(list), collections.defaultdict(list)]
