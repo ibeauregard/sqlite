@@ -10,12 +10,12 @@ It is implemented with Python 3.6, using only modules of the [Python Standard Li
 
 To run my_sqlite, you need [Python, version 3.6 or above](https://www.python.org/downloads/).
 
-Launch the application by running `python my_sqlite.py <path-to-database>` from the project's root directory. 
+Launch the application by running `python my_sqlite.py <path-to-database>` from the project's root directory.
+
+A database is already provided for demonstration purposes. It is located in the `mlb/` directory. It consists of a compilation of historical data about Major League Baseball. It is actually an excerpt from a much larger database which [can be found on Kaggle](https://www.kaggle.com/open-source-sports/baseball-databank).
 
 ## Database and table format
 In this project, a database is represented as a directory containing multiples files using a uniform data storage format and a consistent naming scheme.
-
-A database is already provided for user convenience. It is located in the `mlb/` directory. It consists of a compilation of historical data about Major League Baseball. It is actually an excerpt from a much larger database which [can be found on Kaggle](https://www.kaggle.com/open-source-sports/baseball-databank).
 
 In each table, the first record is the header, which defines the name of each column. The rest of the records are the actual data. Each record's length matches the length of the header. Throughout all databases, records and columns are each consistently separated by a distinct, unique character.
 
