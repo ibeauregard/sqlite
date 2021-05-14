@@ -160,7 +160,8 @@ class Insert(AbstractQuery):
         for insertion in self._insertions:
             insertion_id = insertion[self._value_indices[0]]
             if insertion_id in existing_ids:
-                raise InsertError(f"attempting to store more than one record with id '{insertion_id}'; aborting the insert")
+                raise InsertError(f"attempting to store more than one record with id '{insertion_id}'; "
+                                  f"aborting the insert")
             existing_ids.add(insertion_id)
             records_to_insert.append(
                 [insertion[self._value_indices[i]] if i in self._value_indices else '' for i in range(record_len)])
