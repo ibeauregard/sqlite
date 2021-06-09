@@ -22,7 +22,7 @@ In each table, the first record is the header, which defines the name of each co
 These characters are specified in the config/config.py file. In addition to the separator characters, this file also specifies the common file extension for all tables, and the database path. Note that by default, the database path is the second argument of the `python` command used to launch my_sqlite.
 
 ## Types and conversion
-The application does not maintain and enforce types, such as INT, FLOAT AND TEXT. Instead, all data are stored as text. However, a conversion is performed on all user input, and on stored data whenever a value is needed for comparison or sorting.
+The application does not maintain and enforce types, such as INT, FLOAT and TEXT. Instead, all data are stored as text. However, a conversion is performed on all user input, and on stored data whenever a value is needed for comparison or sorting.
 
 First, the application tries to convert the value to an integer. It that conversion fails, a conversion to float is attempted. If that also fails, the value is considered as text.
 
