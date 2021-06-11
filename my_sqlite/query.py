@@ -224,7 +224,7 @@ class Select(FilteredQuery):
             return itertools.product(*tables)
         groups_left, groups_right = self._get_groups(tables)
         return itertools.chain.from_iterable(
-            itertools.product(group, groups_right[key]) for key, group in groups_left.items())
+            itertools.product(groups_left[key], groups_right[key]) for key in groups_left)
 
     def _get_groups(self, tables):
         groups = [collections.defaultdict(list), collections.defaultdict(list)]
