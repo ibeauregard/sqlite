@@ -189,7 +189,7 @@ class Select(FilteredQuery):
     def _on(self, join_keys):
         key1, key2 = self._map_keys(*join_keys)
         if key1.table == key2.table:
-            self.tables[key1.table].filter.append(lambda record: record[key1.column] == record[key2.column])
+            self.tables[key1.table].filters.append(lambda record: record[key1.column] == record[key2.column])
         else:
             self._on_keys = tuple(key.column for key in sorted((key1, key2), key=lambda k: k.table))
 
