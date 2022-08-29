@@ -1,5 +1,7 @@
 # my_sqlite
 
+You can read my [Substack post that I wrote about this project](https://ianbeauregard.substack.com/p/emulating-sqlite-with-vanilla-python).
+
 ## Description
 
 This project is a partial replica of the SQLite command-line interface (CLI) and data manipulation operations.
